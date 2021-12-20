@@ -1,13 +1,11 @@
 import datetime
-import json
 
 import pytz
 from django.contrib.auth.models import User
-from django.contrib.gis.geos import Point
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APIClient, APITestCase
 
 from apps.events.models import Event, EventTag
 from apps.venues.models import Venue
@@ -34,17 +32,23 @@ class EventAPITestCase(APITestCase):
         self._client_general.force_authenticate(self._user_general)
 
     def test_anyone_can_create_event(self):
-        data = {"name": "New Year Celebration", "venue": baker.make(Venue).id,
-                "tags": [tag.id for tag in baker.make(EventTag, _quantity=3)],
-                "start_date": datetime.datetime(2022, 5, 1, 7, 30, 30, tzinfo=pytz.UTC),
-                "end_date": datetime.datetime(2022, 5, 5, 7, 30, 30, tzinfo=pytz.UTC)}
+        data = {
+            "name": "New Year Celebration",
+            "venue": baker.make(Venue).id,
+            "tags": [tag.id for tag in baker.make(EventTag, _quantity=3)],
+            "start_date": datetime.datetime(2022, 5, 1, 7, 30, 30, tzinfo=pytz.UTC),
+            "end_date": datetime.datetime(2022, 5, 5, 7, 30, 30, tzinfo=pytz.UTC),
+        }
         response = self._client_admin.post(self.EVENT_LIST_PATH, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        data = {"name": "New Year Celebration", "venue": baker.make(Venue).id,
-                "tags": [tag.id for tag in baker.make(EventTag, _quantity=3)],
-                "start_date": datetime.datetime(2022, 5, 1, 7, 30, 30, tzinfo=pytz.UTC),
-                "end_date": datetime.datetime(2022, 5, 5, 7, 30, 30, tzinfo=pytz.UTC)}
+        data = {
+            "name": "New Year Celebration",
+            "venue": baker.make(Venue).id,
+            "tags": [tag.id for tag in baker.make(EventTag, _quantity=3)],
+            "start_date": datetime.datetime(2022, 5, 1, 7, 30, 30, tzinfo=pytz.UTC),
+            "end_date": datetime.datetime(2022, 5, 5, 7, 30, 30, tzinfo=pytz.UTC),
+        }
         response = self._client_general.post(self.EVENT_LIST_PATH, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -65,17 +69,21 @@ class EventAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_only_creator_can_update_event(self):
-        event = baker.make(Event, user=self._user_admin,
-                           status=Event.Status.RUNNING,
-                           tags=baker.make(EventTag, _quantity=3))
+        event = baker.make(
+            Event,
+            user=self._user_admin,
+            status=Event.Status.RUNNING,
+            tags=baker.make(EventTag, _quantity=3),
+        )
 
         single_event_url = reverse("events:event-detail", kwargs={"pk": event.id})
-        put_data = {"name": "New Name",
-                    "venue": event.venue.id,
-                    "tags": [tag.id for tag in baker.make(EventTag, _quantity=3)],
-                    "start_date": datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.UTC),
-                    "end_date": datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC)
-                    }
+        put_data = {
+            "name": "New Name",
+            "venue": event.venue.id,
+            "tags": [tag.id for tag in baker.make(EventTag, _quantity=3)],
+            "start_date": datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.UTC),
+            "end_date": datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC),
+        }
         response = self._client_admin.put(single_event_url, put_data)
         self.assertEqual(event.tags.count(), 6)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -87,12 +95,15 @@ class EventAPITestCase(APITestCase):
         event = baker.make(Event, user=self._user_admin, status=Event.Status.RUNNING)
         single_event_url = reverse("events:event-detail", kwargs={"pk": event.id})
 
-        response = self._client_general.put(single_event_url, {"name": "New Name",
-                                                               "venue": event.venue.id,
-                                                               "start_date": datetime.datetime(2022, 6, 1, 7, 30, 30,
-                                                                                               tzinfo=pytz.UTC),
-                                                               "end_date": datetime.datetime(2022, 6, 5, 7, 30, 30,
-                                                                                             tzinfo=pytz.UTC)})
+        response = self._client_general.put(
+            single_event_url,
+            {
+                "name": "New Name",
+                "venue": event.venue.id,
+                "start_date": datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.UTC),
+                "end_date": datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC),
+            },
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         response = self._client_general.patch(single_event_url, {"name": "New Name"})
@@ -113,44 +124,52 @@ class EventAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_cant_create_event_in_occupied_venue(self):
-        event = baker.make(Event,
-                           user=self._user_admin,
-                           status=Event.Status.RUNNING,
-                           tags=baker.make(EventTag, _quantity=3),
-                           venue=baker.make(Venue),
-                           start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.UTC),
-                           end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC))
+        event = baker.make(
+            Event,
+            user=self._user_admin,
+            status=Event.Status.RUNNING,
+            tags=baker.make(EventTag, _quantity=3),
+            venue=baker.make(Venue),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.UTC),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC),
+        )
 
-        data = {"name": "New Year Celebration",
-                "venue": event.venue.id,
-                "tags": [],
-                "start_date": datetime.datetime(2022, 6, 2, 7, 30, 30, tzinfo=pytz.UTC),
-                "end_date": datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC)}
+        data = {
+            "name": "New Year Celebration",
+            "venue": event.venue.id,
+            "tags": [],
+            "start_date": datetime.datetime(2022, 6, 2, 7, 30, 30, tzinfo=pytz.UTC),
+            "end_date": datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC),
+        }
         response = self._client_admin.post(self.EVENT_LIST_PATH, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_cant_create_event_with_end_date_less_than_start_date(self):
-        data = {"name": "New Year Celebration", "venue": baker.make(Venue).id,
-                "tags": [tag.id for tag in baker.make(EventTag, _quantity=3)],
-                "start_date": datetime.datetime(2021, 5, 10, 10, 20, 30, tzinfo=pytz.UTC),
-                "end_date": datetime.datetime(2021, 4, 10, 20, 30, tzinfo=pytz.UTC)}
+        data = {
+            "name": "New Year Celebration",
+            "venue": baker.make(Venue).id,
+            "tags": [tag.id for tag in baker.make(EventTag, _quantity=3)],
+            "start_date": datetime.datetime(2021, 5, 10, 10, 20, 30, tzinfo=pytz.UTC),
+            "end_date": datetime.datetime(2021, 4, 10, 20, 30, tzinfo=pytz.UTC),
+        }
         response = self._client_admin.post(self.EVENT_LIST_PATH, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_event_partial_update_fails_with_end_date_less_than_start_date(self):
-        event = baker.make(Event,
-                           user=self._user_admin,
-                           status=Event.Status.RUNNING,
-                           tags=baker.make(EventTag, _quantity=3),
-                           venue=baker.make(Venue),
-                           start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.UTC),
-                           end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC))
+        event = baker.make(
+            Event,
+            user=self._user_admin,
+            status=Event.Status.RUNNING,
+            tags=baker.make(EventTag, _quantity=3),
+            venue=baker.make(Venue),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.UTC),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC),
+        )
 
         single_event_url = reverse("events:event-detail", kwargs={"pk": event.id})
         data = {
             "start_date": datetime.datetime(2022, 7, 1, 7, 30, 30, tzinfo=pytz.UTC),
-            "end_date": datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC)
+            "end_date": datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC),
         }
         response = self._client_admin.patch(single_event_url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-

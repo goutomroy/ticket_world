@@ -1,6 +1,6 @@
-from django_extensions.db.fields import AutoSlugField
 from django.contrib.auth.models import User
 from django.db import models
+from django_extensions.db.fields import AutoSlugField
 from ordered_model.models import OrderedModelBase
 
 from apps.core.models import BaseModel
@@ -10,7 +10,7 @@ from apps.venues.models import Venue
 
 class EventTag(BaseModel):
     name = models.CharField(max_length=200)
-    slug = AutoSlugField(populate_from=['name'])
+    slug = AutoSlugField(populate_from=["name"])
 
     @staticmethod
     def has_read_permission(request):
@@ -31,7 +31,6 @@ class EventTag(BaseModel):
 
 
 class Event(BaseModel):
-
     class Status(models.IntegerChoices):
         CREATED = 1, "Created"
         RUNNING = 2, "Running"
@@ -39,7 +38,7 @@ class Event(BaseModel):
         COMPLETED_WITH_ERROR = 4, "Completed with error"
 
     name = models.CharField(max_length=256)
-    slug = AutoSlugField(populate_from=['name'])
+    slug = AutoSlugField(populate_from=["name"])
     description = models.TextField(blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
@@ -62,7 +61,11 @@ class Event(BaseModel):
         return True
 
     def has_object_write_permission(self, request):
-        if request.user.is_superuser or request.user.is_staff or self.user == request.user:
+        if (
+            request.user.is_superuser
+            or request.user.is_staff
+            or self.user == request.user
+        ):
             return True
         return False
 
@@ -79,7 +82,9 @@ class EventSeatType(BaseModel):
     ]
 
     name = models.CharField(max_length=100)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="seat_types")
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name="seat_types"
+    )
     price = models.PositiveIntegerField(default=0)
     info = models.CharField(max_length=150, blank=True)
 
@@ -95,7 +100,11 @@ class EventSeatType(BaseModel):
         return True
 
     def has_object_write_permission(self, request):
-        if request.user.is_superuser or request.user.is_staff or self.event.user == request.user:
+        if (
+            request.user.is_superuser
+            or request.user.is_staff
+            or self.event.user == request.user
+        ):
             return True
         return False
 

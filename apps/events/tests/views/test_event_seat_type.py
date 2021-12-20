@@ -1,16 +1,14 @@
 import datetime
 import json
 
-import pytz
 from django.contrib.auth.models import User
-from django.contrib.gis.geos import Point
 from django.utils import timezone
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APIClient, APITestCase
 
-from apps.events.models import Event, EventTag, EventSeatType
+from apps.events.models import Event, EventSeatType, EventTag
 from apps.venues.models import Venue
 
 
@@ -36,37 +34,45 @@ class EventSeatTypeAPITestCase(APITestCase):
 
     def test_get_all_event_seat_types_of_a_event(self):
         event = Event.objects.create(
-                           user=self._user_admin,
-                           status=Event.Status.RUNNING,
-                           venue=baker.make(Venue),
-                           start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-                           end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc))
+            user=self._user_admin,
+            status=Event.Status.RUNNING,
+            venue=baker.make(Venue),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+        )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
-        response = self._client_general.get(self.EVENT_SEAT_TYPE_LIST_PATH, {"event": event.id})
+        response = self._client_general.get(
+            self.EVENT_SEAT_TYPE_LIST_PATH, {"event": event.id}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(json.loads(response.content)), 3)
 
-    def test_general_user_cant_create_event_seat_types_for_a_event_created_by_others(self):
+    def test_general_user_cant_create_event_seat_types_for_a_event_created_by_others(
+        self,
+    ):
         event = Event.objects.create(
-                           user=self._user_admin,
-                           status=Event.Status.RUNNING,
-                           venue=baker.make(Venue),
-                           start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-                           end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc))
+            user=self._user_admin,
+            status=Event.Status.RUNNING,
+            venue=baker.make(Venue),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+        )
         event.tags.add(*baker.make(EventTag, _quantity=3))
-        response = self._client_general.post(self.EVENT_SEAT_TYPE_LIST_PATH, {"event": event.id,
-                                                                              "price": 35,
-                                                                              "name": "child friendly"})
+        response = self._client_general.post(
+            self.EVENT_SEAT_TYPE_LIST_PATH,
+            {"event": event.id, "price": 35, "name": "child friendly"},
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_only_creator_or_admin_staff_can_update_event_seat_type(self):
         event = Event.objects.create(
-                           user=self._user_admin,
-                           status=Event.Status.RUNNING,
-                           venue=baker.make(Venue),
-                           start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-                           end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc))
+            user=self._user_admin,
+            status=Event.Status.RUNNING,
+            venue=baker.make(Venue),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+        )
         event.tags.add(*baker.make(EventTag, _quantity=3))
         event_seat_type = EventSeatType.objects.filter(event=event.id).first()
         url = reverse("events:eventseattype-detail", kwargs={"pk": event_seat_type.id})

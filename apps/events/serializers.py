@@ -2,11 +2,11 @@ import datetime
 
 import pytz
 from django.db.models import Q
-from dry_rest_permissions.generics import DRYPermissionsField
 from django.utils.translation import gettext_lazy as _
+from dry_rest_permissions.generics import DRYPermissionsField
 from rest_framework import serializers
 
-from apps.events.models import Event, EventTag, EventSeatType, EventSeat
+from apps.events.models import Event, EventSeat, EventSeatType, EventTag
 
 
 class EventTagSerializer(serializers.ModelSerializer):
@@ -26,16 +26,21 @@ class EventTagSerializer(serializers.ModelSerializer):
 
 
 class EventTagPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
-
     def to_representation(self, event_tag):
         return EventTagSerializer(event_tag).data
 
 
 class EventSerializer(serializers.ModelSerializer):
     _default_custom_error_message = {
-        "venue_start_date_end_date": {"venue_start_date_end_date": _("Venue is occupied by other event right now")},
-        "start_date_end_date": {"start_date_end_date": _("end_date must be grater than start_date")},
-        "start_date": {"start_date": _("start_date cant be grater than current end_date")},
+        "venue_start_date_end_date": {
+            "venue_start_date_end_date": _("Venue is occupied by other event right now")
+        },
+        "start_date_end_date": {
+            "start_date_end_date": _("end_date must be grater than start_date")
+        },
+        "start_date": {
+            "start_date": _("start_date cant be grater than current end_date")
+        },
         "end_date": {"end_date": _("end_date cant be less than current start_date")},
         "venue": {"venue": _("Venue is occupied by other event right now")},
     }
@@ -62,9 +67,9 @@ class EventSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             "id",
-            'user',
+            "user",
             "slug",
-            'object_permissions',
+            "object_permissions",
             "created",
             "updated",
         )
@@ -92,48 +97,65 @@ class EventSerializer(serializers.ModelSerializer):
 
     def validate_venue_for_partial_update(self, data):
         if Event.objects.filter(
-                ~Q(id=self.instance.id) &
-                Q(venue=data["venue"]) &
-                (
-                        Q(start_date__lte=self.instance.start_date, end_date__gte=self.instance.start_date) |
-                        Q(start_date__lte=self.instance.end_date, end_date__gte=self.instance.end_date)
+            ~Q(id=self.instance.id)
+            & Q(venue=data["venue"])
+            & (
+                Q(
+                    start_date__lte=self.instance.start_date,
+                    end_date__gte=self.instance.start_date,
                 )
+                | Q(
+                    start_date__lte=self.instance.end_date,
+                    end_date__gte=self.instance.end_date,
+                )
+            )
         ).exists():
-            self._object_level_validation_errors.append(self._default_custom_error_message["venue"])
+            self._object_level_validation_errors.append(
+                self._default_custom_error_message["venue"]
+            )
 
     def validate_start_date_for_partial_update(self, data):
         if data["start_date"] > self.instance.end_date:
-            self._object_level_validation_errors.append(self._default_custom_error_message["start_date"])
+            self._object_level_validation_errors.append(
+                self._default_custom_error_message["start_date"]
+            )
 
     def validate_end_date_for_partial_update(self, data):
         if data["end_date"] < self.instance.start_date:
-            self._object_level_validation_errors.append(self._default_custom_error_message["end_date"])
+            self._object_level_validation_errors.append(
+                self._default_custom_error_message["end_date"]
+            )
 
     def validate_start_end_date(self, data):
         if data["start_date"] > data["end_date"]:
-            self._object_level_validation_errors.append(self._default_custom_error_message["start_date_end_date"])
+            self._object_level_validation_errors.append(
+                self._default_custom_error_message["start_date_end_date"]
+            )
 
     def validate_venue_start_end_date_create(self, data):
         if Event.objects.filter(
-                Q(venue=data["venue"]) &
-                (
-                    Q(start_date__lte=data["start_date"], end_date__gte=data["start_date"]) |
-                    Q(start_date__lte=data["end_date"], end_date__gte=data["end_date"])
-                )
-
+            Q(venue=data["venue"])
+            & (
+                Q(start_date__lte=data["start_date"], end_date__gte=data["start_date"])
+                | Q(start_date__lte=data["end_date"], end_date__gte=data["end_date"])
+            )
         ).exists():
-            self._object_level_validation_errors.append(self._default_custom_error_message["venue_start_date_end_date"])
+            self._object_level_validation_errors.append(
+                self._default_custom_error_message["venue_start_date_end_date"]
+            )
 
     def validate_venue_start_end_date_for_update_partial_update(self, data):
         if Event.objects.filter(
-                ~Q(id=self.instance.id) &
-                Q(venue=data["venue"]) &
-                (
-                    Q(start_date__lte=data["start_date"], end_date__gte=data["start_date"]) |
-                    Q(start_date__lte=data["end_date"], end_date__gte=data["end_date"])
-                )
+            ~Q(id=self.instance.id)
+            & Q(venue=data["venue"])
+            & (
+                Q(start_date__lte=data["start_date"], end_date__gte=data["start_date"])
+                | Q(start_date__lte=data["end_date"], end_date__gte=data["end_date"])
+            )
         ).exists():
-            self._object_level_validation_errors.append(self._default_custom_error_message["venue_start_date_end_date"])
+            self._object_level_validation_errors.append(
+                self._default_custom_error_message["venue_start_date_end_date"]
+            )
 
     def validate(self, data):
 
@@ -208,9 +230,16 @@ class EventSeatTypeSerializer(serializers.ModelSerializer):
         )
 
     def validate_event(self, value):
-        if value.user != self.context["request"].user or \
-                not self.context["request"].user.is_superuser or not self.context["request"].user.is_staff:
-            raise serializers.ValidationError(_("Only Creator of event or admin/staff can create, update event seat type"))
+        if (
+            value.user != self.context["request"].user
+            or not self.context["request"].user.is_superuser
+            or not self.context["request"].user.is_staff
+        ):
+            raise serializers.ValidationError(
+                _(
+                    "Only Creator of event or admin/staff can create, update event seat type"
+                )
+            )
         return value
 
 
@@ -231,8 +260,12 @@ class EventSeatSerializer(serializers.ModelSerializer):
         )
 
     def validate_event_seat_type(self, value):
-        if value.event.user != self.context["request"].user or \
-                not self.context["request"].user.is_superuser or not self.context["request"].user.is_staff:
-            raise serializers.ValidationError(_("Only Creator of event or admin/staff can create, destroy event seat"))
+        if (
+            value.event.user != self.context["request"].user
+            or not self.context["request"].user.is_superuser
+            or not self.context["request"].user.is_staff
+        ):
+            raise serializers.ValidationError(
+                _("Only Creator of event or admin/staff can create, destroy event seat")
+            )
         return value
-
