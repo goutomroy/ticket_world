@@ -1,0 +1,12 @@
+[flake8]
+max-complexity = 10
+statistics = True
+max-line-length = 88
+select = C, E, F, W, B, B901, B902, B903
+ignore = E203, W503
+per-file-ignores =
+    # Tests often have long method names
+    test*.py: E501
+    # Migrations are auto generated and therefore,
+    # sometimes extend the line length limit
+    **/migrations/*.py: E501

@@ -1,0 +1,21 @@
+version: '3'
+services:
+  postgres:
+    image: mdillon/postgis:11
+    container_name: ticket_world_postgres
+    ports:
+      - "5433:5432"
+    volumes:
+    - /var/ticket_world/database-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "ticket_world"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+
+  redis:
+    image: redis:6.2.4
+    container_name: ticket_world_redis
+    ports:
+      - "6379:6379"
+    volumes:
+    - /var/ticket_world/redis-data:/data
