@@ -43,7 +43,7 @@ class ReservationViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"], permission_classes=(IsAuthenticated,))
     def payment_successful(self, request, pk=None):
-        reservation = self.get_object()
+        reservation = super().get_object()
         if reservation.status in [
             Reservation.Status.INVALIDATED,
             Reservation.Status.CANCELLED,
@@ -64,6 +64,33 @@ class ReservationViewSet(ModelViewSet):
                 context=self.get_serializer_context(),
             ).data
         )
+
+    @action(detail=True, methods=["get"], permission_classes=(IsAuthenticated,))
+    def ticket(self, request, pk):
+        reservation = super().get_object()
+        if reservation.status is not Reservation.Status.RESERVED:
+            return Response(
+                {"detail : reservation wasn't successful"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        event_seats = reservation.event_seats()
+        number_of_seats_of_a_reservation = len(event_seats)
+        seat_numbers_of_a_reservation = [
+            event_seat.seat_number for event_seat in event_seats
+        ]
+        total_cost_of_a_reservation = 0
+        for event_seat in event_seats:
+            total_cost_of_a_reservation += event_seat.event_seat_type.price
+        data = {
+            "event_name": reservation.event.name,
+            "reservation_id": reservation.id,
+            "ticket_number": reservation.seat_number,
+            "number_of_seats": number_of_seats_of_a_reservation,
+            "total_cost": total_cost_of_a_reservation,
+            "seat_numbers": seat_numbers_of_a_reservation,
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class ReservationVenueSeatViewSet(ModelViewSet):

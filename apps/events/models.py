@@ -5,7 +5,6 @@ from ordered_model.models import OrderedModelBase
 
 from apps.core.models import BaseModel
 from apps.events.managers import EventManager
-
 from apps.venues.models import Venue
 
 
@@ -72,11 +71,15 @@ class Event(BaseModel):
 
     def get_reserved_event_seats(self):
         from apps.reservations.models import Reservation, ReservationEventSeat
+
         event = self
-        reserved_event_seats_of_a_event = [each.event_seat for each in ReservationEventSeat.objects.filter(
-            reservation__status=Reservation.Status.RESERVED,
+        reserved_event_seats_of_a_event = [
+            each.event_seat
+            for each in ReservationEventSeat.objects.filter(
+                reservation__status=Reservation.Status.RESERVED,
                 reservation__event=event,
-            )]
+            )
+        ]
         return reserved_event_seats_of_a_event
 
     def __str__(self):
@@ -119,7 +122,7 @@ class EventSeatType(BaseModel):
         return False
 
     def __str__(self):
-        return f"{self.event.name}-{self.name}"
+        return f"{self.event.name} | {self.name}"
 
 
 class EventSeat(BaseModel, OrderedModelBase):
@@ -155,6 +158,7 @@ class EventSeat(BaseModel, OrderedModelBase):
 
     def is_occupied(self):
         from apps.reservations.models import Reservation, ReservationEventSeat
+
         if ReservationEventSeat.objects.filter(
             reservation__status=Reservation.Status.RESERVED, event_seat=self
         ).exists():
@@ -162,4 +166,4 @@ class EventSeat(BaseModel, OrderedModelBase):
         return False
 
     def __str__(self):
-        return f"{self.event_seat_type}-{self.seat_number}"
+        return f"{self.event_seat_type} | {self.seat_number}"

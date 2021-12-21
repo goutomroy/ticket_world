@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from typing import List
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -36,6 +37,10 @@ class Reservation(BaseModel):
     def has_write_permission(request):
         return True
 
+    @staticmethod
+    def has_ticket_permission(request):
+        return True
+
     def has_object_read_permission(self, request):
         if (
             request.user.is_superuser
@@ -56,8 +61,11 @@ class Reservation(BaseModel):
             return True
         return False
 
+    def has_object_ticket_permission(self, request):
+        return request.user == self.user
+
     def __str__(self):
-        return f"{self.event.name}-{self.user.username}"
+        return f"{self.event.name} | {self.user.username}"
 
 
 class ReservationEventSeat(BaseModel):
@@ -100,5 +108,8 @@ class ReservationEventSeat(BaseModel):
             return True
         return False
 
+    def event_seats(self) -> List[EventSeat]:
+        return [each.event_seat for each in self.objects.filter(reservation=self)]
+
     def __str__(self):
-        return f"{self.reservation}-{self.event_seat}"
+        return f"{self.reservation} | {self.event_seat}"
