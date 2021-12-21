@@ -64,6 +64,15 @@ class Reservation(BaseModel):
     def has_object_ticket_permission(self, request):
         return request.user == self.user
 
+    @property
+    def event_seats(self) -> List[EventSeat]:
+        return [
+            each.event_seat
+            for each in ReservationEventSeat.objects.select_related("event_seat").filter(
+                reservation=self.id
+            )
+        ]
+
     def __str__(self):
         return f"{self.event.name} | {self.user.username}"
 
@@ -107,9 +116,6 @@ class ReservationEventSeat(BaseModel):
         ):
             return True
         return False
-
-    def event_seats(self) -> List[EventSeat]:
-        return [each.event_seat for each in self.objects.filter(reservation=self)]
 
     def __str__(self):
         return f"{self.reservation} | {self.event_seat}"
