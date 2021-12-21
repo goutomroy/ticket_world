@@ -237,7 +237,7 @@ class EventSeatTypeSerializer(serializers.ModelSerializer):
         ):
             raise serializers.ValidationError(
                 _(
-                    "Only Creator of event or admin/staff can create, update event seat type"
+                    "Only Creator of event or admin/staff can create, update event seat type"  # noqa
                 )
             )
         return value

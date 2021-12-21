@@ -1,9 +1,7 @@
 from dry_rest_permissions.generics import DRYPermissionsField
 from rest_framework import serializers
 
-from apps.events.models import Event
 from apps.reservations.models import Reservation, ReservationEventSeat
-from apps.venues.models import Venue
 
 
 class ReservationSerializer(serializers.ModelSerializer):
@@ -17,7 +15,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             "event",
             "status",
             "payment_id",
-            'ticket_number',
+            "ticket_number",
             "object_permissions",
         )
         read_only_fields = (

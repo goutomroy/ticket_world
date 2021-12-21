@@ -37,12 +37,22 @@ class Reservation(BaseModel):
         return True
 
     def has_object_read_permission(self, request):
-        if request.user.is_superuser or request.user.is_staff or self.user == request.user or self.event.user == request.user:
+        if (
+            request.user.is_superuser
+            or request.user.is_staff
+            or self.user == request.user
+            or self.event.user == request.user
+        ):
             return True
         return False
 
     def has_object_write_permission(self, request):
-        if request.user.is_superuser or request.user.is_staff or self.user == request.user or self.event.user == request.user:
+        if (
+            request.user.is_superuser
+            or request.user.is_staff
+            or self.user == request.user
+            or self.event.user == request.user
+        ):
             return True
         return False
 
@@ -55,9 +65,12 @@ class ReservationEventSeat(BaseModel):
     event_seat = models.ForeignKey(EventSeat, on_delete=models.CASCADE)
 
     class Meta:
-        constraints = [UniqueConstraint(fields=["reservation", "event_seat"], name="unique_reservation_event_seat")]
+        constraints = [
+            UniqueConstraint(
+                fields=["reservation", "event_seat"],
+                name="unique_reservation_event_seat",
+            )
+        ]
 
     def __str__(self):
         return f"{self.reservation}-{self.event_seat}"
-
-

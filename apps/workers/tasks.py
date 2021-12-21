@@ -9,17 +9,21 @@ from apps.reservations.models import Reservation
 
 @shared_task
 def event_starter():
-    events = Event.objects.filter(status=Event.Status.CREATED, start_date__gte=datetime.now(tz=pytz.UTC))
+    events = Event.objects.filter(
+        status=Event.Status.CREATED, start_date__gte=datetime.now(tz=pytz.UTC)
+    )
     objects = []
     for event in events:
         event.status = Event.Status.RUNNING
         objects.append(event)
     Event.objects.bulk_update(objects, fields=["status"])
-    
+
 
 @shared_task
 def event_stopper():
-    events = Event.objects.filter(status=Event.Status.RUNNING, end_date__gte=datetime.now(tz=pytz.UTC))
+    events = Event.objects.filter(
+        status=Event.Status.RUNNING, end_date__gte=datetime.now(tz=pytz.UTC)
+    )
     objects = []
     for event in events:
         event.status = Event.Status.COMPLETED
@@ -38,4 +42,3 @@ def start_reservation_invalidator():
             objects.append(reservation)
 
     Reservation.objects.bulk_update(objects, fields=["status"])
-

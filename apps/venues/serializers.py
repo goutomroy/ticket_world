@@ -6,7 +6,6 @@ from apps.venues.models import Venue
 
 
 class LocationField(serializers.DictField):
-
     def to_representation(self, value):
         return {"x": value.x, "y": value.y}
 
@@ -17,7 +16,9 @@ class LocationField(serializers.DictField):
 
 class VenueSerializer(serializers.ModelSerializer):
     object_permissions = DRYPermissionsField()
-    location = LocationField(child=serializers.FloatField(), allow_empty=False, required=True)
+    location = LocationField(
+        child=serializers.FloatField(), allow_empty=False, required=True
+    )
 
     class Meta:
         model = Venue
@@ -26,7 +27,7 @@ class VenueSerializer(serializers.ModelSerializer):
             "name",
             "address",
             "location",
-            'object_permissions',
+            "object_permissions",
             "created",
             "updated",
         )
@@ -36,4 +37,3 @@ class VenueSerializer(serializers.ModelSerializer):
             "created",
             "updated",
         )
-
