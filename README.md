@@ -1,3 +1,6 @@
+I tried to keep the api structure in such a way so that it be used to 
+write both the admin site and general user site. 
+
 ## Run the api server
 
 * docker-compose up -d
