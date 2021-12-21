@@ -12,7 +12,6 @@ from apps.events.serializers import (
     EventSerializer,
     EventTagSerializer,
 )
-from apps.reservations.models import Reservation, ReservationEventSeat
 
 
 class EventTagViewSet(ModelViewSet):
@@ -36,8 +35,11 @@ class EventViewSet(ModelViewSet):
     filterset_fields = ("user", "status", "start_date", "end_date")
 
     def get_queryset(self):
-        return Event.objects.prefetch_related("tags").filter(
-            status=Event.Status.RUNNING
+        return (
+            super()
+            .get_queryset()
+            .prefetch_related("tags")
+            .filter(status=Event.Status.RUNNING)
         )
 
     def perform_create(self, serializer):
@@ -72,7 +74,7 @@ class EventSeatTypeViewSet(ModelViewSet):
     filterset_fields = ("event",)
 
     def get_queryset(self):
-        return EventSeatType.objects.select_related("event").all()
+        return super().get_queryset().select_related("event").all()
 
 
 class EventSeatViewSet(ModelViewSet):
@@ -86,8 +88,13 @@ class EventSeatViewSet(ModelViewSet):
     filterset_fields = ("event_seat_type", "event_seat_type__event")
 
     def get_queryset(self):
-        return EventSeat.objects.select_related(
-            "event_seat_type",
-        ).all()
+        return (
+            super()
+            .get_queryset()
+            .select_related(
+                "event_seat_type",
+            )
+            .all()
+        )
 
     # TODO: before deleting check whether its accupied or not

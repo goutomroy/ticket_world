@@ -27,10 +27,13 @@ class ReservationViewSet(ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.is_superuser or self.request.user.is_staff:
-            return Reservation.objects.select_related("user", "event").all()
+            return super().get_queryset().select_related("user", "event").all()
 
-        return Reservation.objects.select_related("user", "event").filter(
-            Q(user=self.request.user) | Q(event__user=self.request.user)
+        return (
+            super()
+            .get_queryset()
+            .select_related("user", "event")
+            .filter(Q(user=self.request.user) | Q(event__user=self.request.user))
         )
 
     @action(detail=False, url_path="statuses", permission_classes=(IsAuthenticated,))
