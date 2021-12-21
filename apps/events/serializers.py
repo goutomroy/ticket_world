@@ -32,17 +32,13 @@ class EventTagPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
 
 class EventSerializer(serializers.ModelSerializer):
     _default_custom_error_message = {
-        "venue_start_date_end_date": {
-            "venue_start_date_end_date": _("Venue is occupied by other event right now")
-        },
-        "start_date_end_date": {
-            "start_date_end_date": _("end_date must be grater than start_date")
-        },
-        "start_date": {
-            "start_date": _("start_date cant be grater than current end_date")
-        },
-        "end_date": {"end_date": _("end_date cant be less than current start_date")},
-        "venue": {"venue": _("Venue is occupied by other event right now")},
+        "venue_start_date_end_date": _(
+            "Venue is occupied by other event right now for provided start and end date"
+        ),
+        "start_date_end_date": _("end_date must be grater than start_date"),
+        "start_date": _("start_date cant be grater than current end_date"),
+        "end_date": _("end_date cant be less than current start_date"),
+        "venue": _("Venue is occupied by other event right now"),
     }
 
     object_permissions = DRYPermissionsField()

@@ -72,5 +72,33 @@ class ReservationEventSeat(BaseModel):
             )
         ]
 
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    @staticmethod
+    def has_write_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        if (
+            request.user.is_superuser
+            or request.user.is_staff
+            or self.reservation.user == request.user
+            or self.reservation.event.user == request.user
+        ):
+            return True
+        return False
+
+    def has_object_write_permission(self, request):
+        if (
+            request.user.is_superuser
+            or request.user.is_staff
+            or self.reservation.user == request.user
+            or self.reservation.event.user == request.user
+        ):
+            return True
+        return False
+
     def __str__(self):
         return f"{self.reservation}-{self.event_seat}"

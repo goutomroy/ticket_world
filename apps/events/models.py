@@ -5,6 +5,7 @@ from ordered_model.models import OrderedModelBase
 
 from apps.core.models import BaseModel
 from apps.events.managers import EventManager
+
 from apps.venues.models import Venue
 
 
@@ -68,6 +69,15 @@ class Event(BaseModel):
         ):
             return True
         return False
+
+    def get_reserved_event_seats(self):
+        from apps.reservations.models import Reservation, ReservationEventSeat
+        event = self
+        reserved_event_seats_of_a_event = [each.event_seat for each in ReservationEventSeat.objects.filter(
+            reservation__status=Reservation.Status.RESERVED,
+                reservation__event=event,
+            )]
+        return reserved_event_seats_of_a_event
 
     def __str__(self):
         return self.name
@@ -141,6 +151,14 @@ class EventSeat(BaseModel, OrderedModelBase):
         return False
 
     def has_object_patch_permission(self, request):
+        return False
+
+    def is_occupied(self):
+        from apps.reservations.models import Reservation, ReservationEventSeat
+        if ReservationEventSeat.objects.filter(
+            reservation__status=Reservation.Status.RESERVED, event_seat=self
+        ).exists():
+            return True
         return False
 
     def __str__(self):
