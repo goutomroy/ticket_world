@@ -22,9 +22,11 @@ So we need to create these 3 tasks from admin panel.
 * python manage.py test --keepdb
 
 ## TODO
-* I have wrote `22 tests`, I see 100s of tests would be written for 
-  this project in the future.
+* I have wrote `22 tests` only for `events` app, I see 100s of tests would be written for 
+  this project in the future. I have tested `reservation` related apis using `postman`, need to write lots of tests for this area.
 * Before deleting a event seat check whether its occupied or not
 * Implement avoid one - we can only buy tickets in a quantity that will not leave only 1 ticket
 * Lots of database query optimizations
 * Handle concurrency in many areas
+* Clear ambiguity discussing with project manager.
+* Lots of, lots of improvements.
