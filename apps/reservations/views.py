@@ -41,7 +41,11 @@ class ReservationViewSet(ModelViewSet):
         data = [{label: value} for value, label in Reservation.Status.choices]
         return Response(data)
 
-    @action(detail=True, methods=["get"], permission_classes=(IsAuthenticated,))
+    @action(
+        detail=True,
+        methods=["get"],
+        permission_classes=(IsAuthenticated, DRYPermissions),
+    )
     def payment_successful(self, request, pk=None):
         reservation = super().get_object()
         if reservation.status in [
@@ -65,7 +69,11 @@ class ReservationViewSet(ModelViewSet):
             ).data
         )
 
-    @action(detail=True, methods=["get"], permission_classes=(IsAuthenticated,))
+    @action(
+        detail=True,
+        methods=["get"],
+        permission_classes=(IsAuthenticated, DRYPermissions),
+    )
     def ticket(self, request, pk):
         reservation = super().get_object()
         if reservation.status != Reservation.Status.RESERVED:
@@ -118,3 +126,4 @@ class ReservationVenueSeatViewSet(ModelViewSet):
             kwargs["many"] = True
             kwargs["allow_empty"] = False
         return super().get_serializer(*args, **kwargs)
+

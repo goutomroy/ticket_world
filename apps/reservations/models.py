@@ -68,9 +68,9 @@ class Reservation(BaseModel):
     def event_seats(self) -> List[EventSeat]:
         return [
             each.event_seat
-            for each in ReservationEventSeat.objects.select_related("event_seat").filter(
-                reservation=self.id
-            )
+            for each in ReservationEventSeat.objects.select_related(
+                "event_seat"
+            ).filter(reservation=self.id)
         ]
 
     def __str__(self):

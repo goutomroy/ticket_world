@@ -52,11 +52,20 @@ class ReservationEventSeatListSerializer(serializers.ListSerializer):
                 )
                 break
 
+    def validate_active_reservation(self, attrs):
+        if attrs[0].status != Reservation.Status.CREATED:
+            self.custom_non_field_errors.append(
+                _("Reservation is either reserved, cancelled or invalidated")
+            )
+        return attrs
+
     def validate(self, attrs):
         self.custom_non_field_errors = []
         self.validate_even_number_of_seats(attrs)
         self.validate_all_seats_for_same_reservations(attrs)
         self.validate_all_seats_around_each_other(attrs)
+        self.validate_active_reservation(attrs)
+
         # TODO:  avoid one - we can only buy tickets in a quantity that will not leave only 1 ticket # noqa
         if self.custom_non_field_errors:
             raise serializers.ValidationError(self.custom_non_field_errors)
