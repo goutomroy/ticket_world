@@ -12,6 +12,9 @@ class EventTag(BaseModel):
     name = models.CharField(max_length=200)
     slug = AutoSlugField(populate_from=["name"])
 
+    def __str__(self):
+        return self.name
+
     @staticmethod
     def has_read_permission(request):
         return True
@@ -25,9 +28,6 @@ class EventTag(BaseModel):
 
     def has_object_write_permission(self, request):
         return True
-
-    def __str__(self):
-        return self.name
 
 
 class Event(BaseModel):
@@ -48,6 +48,9 @@ class Event(BaseModel):
     end_date = models.DateTimeField()
 
     objects = EventManager()
+
+    def __str__(self):
+        return self.name
 
     @staticmethod
     def has_read_permission(request):
@@ -82,9 +85,6 @@ class Event(BaseModel):
         ]
         return reserved_event_seats_of_a_event
 
-    def __str__(self):
-        return self.name
-
 
 class EventSeatType(BaseModel):
 
@@ -100,6 +100,9 @@ class EventSeatType(BaseModel):
     )
     price = models.PositiveIntegerField(default=0)
     info = models.CharField(max_length=150, blank=True)
+
+    def __str__(self):
+        return f"{self.event.name} | {self.name}"
 
     @staticmethod
     def has_read_permission(request):
@@ -121,9 +124,6 @@ class EventSeatType(BaseModel):
             return True
         return False
 
-    def __str__(self):
-        return f"{self.event.name} | {self.name}"
-
 
 class EventSeat(BaseModel, OrderedModelBase):
 
@@ -135,6 +135,9 @@ class EventSeat(BaseModel, OrderedModelBase):
 
     class Meta:
         ordering = ("seat_number",)
+
+    def __str__(self):
+        return f"{self.event_seat_type} | {self.seat_number}"
 
     @staticmethod
     def has_read_permission(request):
@@ -164,6 +167,3 @@ class EventSeat(BaseModel, OrderedModelBase):
         ).exists():
             return True
         return False
-
-    def __str__(self):
-        return f"{self.event_seat_type} | {self.seat_number}"

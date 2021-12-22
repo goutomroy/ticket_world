@@ -25,9 +25,8 @@ class Reservation(BaseModel):
     payment_id = models.CharField(max_length=256, null=True, blank=True)
     ticket_number = models.UUIDField(editable=False, default=uuid.uuid4, unique=True)
 
-    @property
-    def time_elapsed_since_create(self):
-        return int((datetime.datetime.now(timezone.utc) - self.created).total_seconds())
+    def __str__(self):
+        return f"{self.event.name} | {self.user.username}"
 
     @staticmethod
     def has_read_permission(request):
@@ -73,8 +72,9 @@ class Reservation(BaseModel):
             ).filter(reservation=self.id)
         ]
 
-    def __str__(self):
-        return f"{self.event.name} | {self.user.username}"
+    @property
+    def time_elapsed_since_create(self):
+        return int((datetime.datetime.now(timezone.utc) - self.created).total_seconds())
 
 
 class ReservationEventSeat(BaseModel):
@@ -88,6 +88,9 @@ class ReservationEventSeat(BaseModel):
                 name="unique_reservation_event_seat",
             )
         ]
+
+    def __str__(self):
+        return f"{self.reservation} | {self.event_seat}"
 
     @staticmethod
     def has_read_permission(request):
@@ -117,5 +120,3 @@ class ReservationEventSeat(BaseModel):
             return True
         return False
 
-    def __str__(self):
-        return f"{self.reservation} | {self.event_seat}"
