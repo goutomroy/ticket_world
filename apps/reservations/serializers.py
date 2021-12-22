@@ -23,9 +23,18 @@ class ReservationSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id",
             "object_permissions",
+            "payment_id",
+            "ticket_number",
             "created",
             "updated",
         )
+
+    def validate_event(self, value):
+        if value.status != Reservation.Status.CREATED:
+            raise serializers.ValidationError(
+                _("event is either invalidated, cancelled, reserved")
+            )
+        return value
 
 
 class ReservationEventSeatListSerializer(serializers.ListSerializer):

@@ -9,6 +9,9 @@ class Venue(BaseModel):
     address = models.CharField(max_length=300)
     location = PointField()
 
+    def __str__(self):
+        return self.name
+
     @staticmethod
     def has_read_permission(request):
         return True
@@ -26,6 +29,3 @@ class Venue(BaseModel):
         if request.user.is_superuser or request.user.is_staff:
             return True
         return False
-
-    def __str__(self):
-        return self.name
