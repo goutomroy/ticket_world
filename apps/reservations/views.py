@@ -126,4 +126,3 @@ class ReservationVenueSeatViewSet(ModelViewSet):
             kwargs["many"] = True
             kwargs["allow_empty"] = False
         return super().get_serializer(*args, **kwargs)
-

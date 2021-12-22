@@ -119,4 +119,3 @@ class ReservationEventSeat(BaseModel):
         ):
             return True
         return False
-
