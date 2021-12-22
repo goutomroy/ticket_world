@@ -124,7 +124,7 @@ src/
 
 # JetBrains
 .idea/*
-!.idea/watcherTasks.xml
+#!.idea/watcherTasks.xml
 
 # Docker volumes
 postgres-data/
