@@ -26,15 +26,16 @@ class ReservationViewSet(ModelViewSet):
     filterset_fields = ("event", "user", "status")
 
     def get_queryset(self):
-        if self.request.user.is_superuser or self.request.user.is_staff:
-            return super().get_queryset().select_related("user", "event").all()
+        if self.action in ["list", "retrieve"]:
+            return (
+                super()
+                .get_queryset()
+                .select_related("user", "event")
+                .filter(Q(user=self.request.user) | Q(event__user=self.request.user))
+            )
 
-        return (
-            super()
-            .get_queryset()
-            .select_related("user", "event")
-            .filter(Q(user=self.request.user) | Q(event__user=self.request.user))
-        )
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
     @action(detail=False, url_path="statuses", permission_classes=(IsAuthenticated,))
     def reservation_statuses(self, request):
@@ -50,7 +51,6 @@ class ReservationViewSet(ModelViewSet):
         reservation = super().get_object()
         if reservation.status in [
             Reservation.Status.INVALIDATED,
-            Reservation.Status.CANCELLED,
             Reservation.Status.RESERVED,
         ]:
             return Response(
@@ -102,7 +102,7 @@ class ReservationViewSet(ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class ReservationVenueSeatViewSet(ModelViewSet):
+class ReservationEventSeatViewSet(ModelViewSet):
     queryset = ReservationEventSeat.objects.all()
     serializer_class = ReservationEventSeatSerializer
     permission_classes = (

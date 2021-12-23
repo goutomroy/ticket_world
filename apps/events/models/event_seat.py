@@ -42,8 +42,9 @@ class EventSeat(BaseModel, OrderedModelBase):
     def is_occupied(self) -> bool:
         from apps.reservations.models import Reservation, ReservationEventSeat
 
+        event_seat = self
         if ReservationEventSeat.objects.filter(
-            reservation__status=Reservation.Status.RESERVED, event_seat=self
+            reservation__status=Reservation.Status.RESERVED, event_seat=event_seat
         ).exists():
             return True
         return False

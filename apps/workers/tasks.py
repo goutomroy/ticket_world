@@ -42,3 +42,8 @@ def start_reservation_invalidator():
             objects.append(reservation)
 
     Reservation.objects.bulk_update(objects, fields=["status"])
+
+
+@shared_task
+def make_refund(payment_id):
+    pass

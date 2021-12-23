@@ -6,37 +6,6 @@ from rest_framework.validators import UniqueTogetherValidator
 from apps.reservations.models import Reservation, ReservationEventSeat
 
 
-class ReservationSerializer(serializers.ModelSerializer):
-    object_permissions = DRYPermissionsField()
-
-    class Meta:
-        model = Reservation
-        fields = (
-            "id",
-            "user",
-            "event",
-            "status",
-            "payment_id",
-            "ticket_number",
-            "object_permissions",
-        )
-        read_only_fields = (
-            "id",
-            "object_permissions",
-            "payment_id",
-            "ticket_number",
-            "created",
-            "updated",
-        )
-
-    def validate_event(self, value):
-        if value.status != Reservation.Status.CREATED:
-            raise serializers.ValidationError(
-                _("event is either invalidated, cancelled, reserved")
-            )
-        return value
-
-
 class ReservationEventSeatListSerializer(serializers.ListSerializer):
     def validate_even_number_of_seats(self, attrs):
         if len(attrs) % 2 != 0:
@@ -115,7 +84,6 @@ class ReservationEventSeatSerializer(serializers.ModelSerializer):
         if value.status in [
             Reservation.Status.INVALIDATED,
             Reservation.Status.RESERVED,
-            Reservation.Status.CANCELLED,
         ]:
             raise serializers.ValidationError(
                 _("reservation is either invalidate. reserved or cancelled")

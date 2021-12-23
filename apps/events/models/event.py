@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 
 from apps.core.models import BaseModel
@@ -50,6 +51,15 @@ class Event(BaseModel):
             return True
         return False
 
+    def get_event_seats(self):
+        from apps.events.models import EventSeat
+
+        event = self
+        return [
+            event_seat
+            for event_seat in EventSeat.objects.filter(event_seat_type__event=event)
+        ]
+
     def get_reserved_event_seats(self):
         from apps.reservations.models import Reservation, ReservationEventSeat
 
@@ -62,3 +72,16 @@ class Event(BaseModel):
             )
         ]
         return reserved_event_seats_of_a_event
+
+    def is_eligible_for_reservation(self):
+        event = self
+        if event.status == Event.Status.COMPLETED:
+            return False, _("Event is complete")
+
+        elif event.status == Event.Status.COMPLETED_WITH_ERROR:
+            return False, _("Event has completed with error")
+
+        elif len(self.get_event_seats()) == len(self.get_reserved_event_seats()):
+            return False, _("Event is houseful")
+
+        return True, _("Ready for reservation")
