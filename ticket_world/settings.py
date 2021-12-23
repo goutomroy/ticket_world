@@ -149,3 +149,5 @@ REST_FRAMEWORK = {
     #     'rest_framework.renderers.TemplateHTMLRenderer'
     # ]
 }
+
+RESERVATION_ID_URL_KEY = "reservation_id"

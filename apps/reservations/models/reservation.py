@@ -5,6 +5,7 @@ from typing import List
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import BaseModel
 from apps.events.models import Event, EventSeat
@@ -35,14 +36,6 @@ class Reservation(BaseModel):
     def has_write_permission(request):
         return True
 
-    @staticmethod
-    def has_ticket_permission(request):
-        return True
-
-    @staticmethod
-    def has_payment_successful_permission(request):
-        return True
-
     def has_object_read_permission(self, request):
         if (
             request.user.is_superuser
@@ -63,31 +56,35 @@ class Reservation(BaseModel):
             return True
         return False
 
-    def has_object_ticket_permission(self, request):
-        return request.user == self.user
-
-    def has_object_payment_successful_permission(self, request):
-        return request.user == self.user
-
     @property
-    def event_seats(self) -> List[EventSeat]:
+    def time_elapsed_since_create(self) -> int:
+        return int((datetime.datetime.now(timezone.utc) - self.created).total_seconds())
 
+    def is_valid(self):
+        reservation = self
+        if reservation.status == Event.Status.INVALIDATED:
+            return False, _("Reservation is invalidated")
+
+        elif reservation.status == Event.Status.RESERVED:
+            return False, _("Reservation is reserved already")
+
+        return True, _("Valid")
+
+    def get_event_seats(self) -> List[EventSeat]:
         from apps.reservations.models import ReservationEventSeat
+
+        reservation = self
 
         return [
             each.event_seat
             for each in ReservationEventSeat.objects.select_related(
                 "event_seat"
-            ).filter(reservation=self.id)
+            ).filter(reservation=reservation)
         ]
-
-    @property
-    def time_elapsed_since_create(self) -> int:
-        return int((datetime.datetime.now(timezone.utc) - self.created).total_seconds())
 
     def get_summary(self) -> dict:
         reservation = self
-        event_seats = reservation.event_seats
+        event_seats = reservation.get_event_seats()
         number_of_seats_of_a_reservation = len(event_seats)
         seat_numbers_of_a_reservation = [
             event_seat.seat_number for event_seat in event_seats

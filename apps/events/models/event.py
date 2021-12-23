@@ -79,9 +79,9 @@ class Event(BaseModel):
             return False, _("Event is complete")
 
         elif event.status == Event.Status.COMPLETED_WITH_ERROR:
-            return False, _("Event has completed with error")
+            return False, _("Event has completed with errors")
 
-        elif len(self.get_event_seats()) == len(self.get_reserved_event_seats()):
+        elif len(event.get_event_seats()) == len(event.get_reserved_event_seats()):
             return False, _("Event is houseful")
 
         return True, _("Ready for reservation")

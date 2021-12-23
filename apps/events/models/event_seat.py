@@ -39,7 +39,7 @@ class EventSeat(BaseModel, OrderedModelBase):
     def has_object_patch_permission(self, request):
         return False
 
-    def is_occupied(self) -> bool:
+    def is_reserved(self) -> bool:
         from apps.reservations.models import Reservation, ReservationEventSeat
 
         event_seat = self

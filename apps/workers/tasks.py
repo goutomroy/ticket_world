@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytz
 from celery import shared_task
+from django.db.models import Q
 
 from apps.events.models import Event
 from apps.reservations.models import Reservation
@@ -34,8 +35,8 @@ def event_stopper():
 @shared_task
 def start_reservation_invalidator():
     objects = []
-    reservations = Reservation.objects.filter(status=Reservation.Status.CREATED)
-    # TODO: use annotation here
+    reservations = Reservation.objects.filter(Q(status=Reservation.Status.CREATED))
+    # TODO: may be use annotation here
     for reservation in reservations:
         if reservation.time_elapsed_since_create() > Reservation.valid_for_seconds:
             reservation.status = Reservation.Status.INVALIDATED
