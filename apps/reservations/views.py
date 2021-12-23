@@ -51,9 +51,10 @@ class ReservationViewSet(ModelViewSet):
         if reservation.status in [
             Reservation.Status.INVALIDATED,
             Reservation.Status.CANCELLED,
+            Reservation.Status.RESERVED,
         ]:
             return Response(
-                {"detail": "reservation cancelled or invalidated"},
+                {"detail": "reservation is either cancelled, invalidated or reserved"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
