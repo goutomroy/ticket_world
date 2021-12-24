@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
     "rest_framework",
-    "django_extensions",
     "django_filters",
     "django_celery_results",
     "django_celery_beat",
@@ -151,3 +150,25 @@ REST_FRAMEWORK = {
 }
 
 RESERVATION_ID_URL_KEY = "reservation_id"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] [{levelname}] [{name}] {message}",
+            "datefmt": "%Y-%m-%d %H:%M:%S %z",
+            "style": "{",
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
+}

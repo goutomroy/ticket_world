@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -39,13 +40,14 @@ class ReservationPaymentSuccessfulView(ReservationRelatedViewMixin, APIView):
             )
 
         #  here your are really ready to reserve selected seats
-        Reservation.objects.select_for_update().filter(
-            id=reservation, status=Reservation.Status.CREATED
-        ).update(status=Reservation.Status.RESERVED, payment_id=payment_id)
+        with transaction.atomic():
+            Reservation.objects.select_for_update().filter(
+                id=reservation, status=Reservation.Status.CREATED
+            ).update(status=Reservation.Status.RESERVED, payment_id=payment_id)
 
-        return Response(
-            ReservationSerializer(
-                reservation.refresh_from_db(fields=["status", "payment_id"]),
-                context=self.get_serializer_context(),
-            ).data
-        )
+            return Response(
+                ReservationSerializer(
+                    reservation.refresh_from_db(fields=["status", "payment_id"]),
+                    context=self.get_serializer_context(),
+                ).data
+            )
