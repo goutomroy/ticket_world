@@ -25,14 +25,4 @@ So we need to create these 3 tasks from admin panel.
 ## Run tests
 * python manage.py test --keepdb
 
-## TODO
-* I have wrote `22 tests` only for `events` app, I see 100s of tests would be written for
-  this project in the future. I have tested `reservation` related apis using `postman`, need to write lots of tests for this area.
-* Let's separate user's api(api/) for general users(event creator, event consumer) and admin api(dashboard/) for website admin or staffs.
-* Before deleting a event seat check whether its occupied or not
-* Implement avoid one - we can only buy tickets in a quantity that will not leave only 1 ticket
-* Integrate `flower` for celery task monitoring.
-* Lots of database query optimizations
-* Handle concurrency in many areas
-* Clear ambiguity discussing with project manager.
-* Lots of, lots of improvements.
+
