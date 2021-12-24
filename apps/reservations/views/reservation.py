@@ -48,6 +48,9 @@ class ReservationViewSet(
         else:
             return super().get_queryset().select_related("user", "event").all()
 
+    # def list(self, request, *args, **kwargs):
+    #     return super(ReservationViewSet, self).list(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
@@ -55,4 +58,3 @@ class ReservationViewSet(
     def reservation_statuses(self, request):
         data = [{label: value} for value, label in Reservation.Status.choices]
         return Response(data)
-

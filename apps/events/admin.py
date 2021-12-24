@@ -11,6 +11,7 @@ class EventTagAdmin(admin.ModelAdmin):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ["id", "user", "venue", "name", "status"]
+    readonly_fields = ["id"]
 
 
 @admin.register(EventSeatType)

@@ -1,7 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-from apps.events.models import EventSeatType
+from apps.events.models import EventSeat
 
 
 class FinalReservationValidationListSerializer(serializers.ListSerializer):
@@ -12,7 +12,7 @@ class FinalReservationValidationListSerializer(serializers.ListSerializer):
             )
 
     def validate_all_seats_around_each_other(self, attrs):
-        seat_numbers = sorted([each["seat_number"] for each in attrs])
+        seat_numbers = sorted([event_seat.seat_number for event_seat in attrs])
         first_seat_number = seat_numbers[0]
         for each in seat_numbers[1:]:
             if each - first_seat_number > 1:
@@ -33,11 +33,15 @@ class FinalReservationValidationListSerializer(serializers.ListSerializer):
 
 
 class FinalReservationValidationSerializer(serializers.Serializer):
-    event_seat_type = serializers.PrimaryKeyRelatedField(
-        queryset=EventSeatType.objects.all(), allow_null=False
+    event_seat = serializers.PrimaryKeyRelatedField(
+        queryset=EventSeat.objects.all(),
     )
-    seat_number = serializers.IntegerField()
 
     class Meta:
         list_serializer_class = FinalReservationValidationListSerializer
         field = "__all__"
+
+    def validate_event_seat(self, event_seat):
+        if event_seat.is_reserved():
+            raise serializers.ValidationError(_("Seat is already reserved."))
+        return event_seat
