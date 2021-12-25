@@ -14,7 +14,7 @@ class EventSeatType(BaseModel):
 
     name = models.CharField(max_length=100)
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="seat_types"
+        Event, on_delete=models.CASCADE, related_name="event_seat_types"
     )
     price = models.PositiveIntegerField(default=0)
     info = models.CharField(max_length=150, blank=True)

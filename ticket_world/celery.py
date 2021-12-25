@@ -5,7 +5,7 @@ import os
 from celery import Celery
 
 # set the default Django settings module for the 'celery' program.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ticket_world.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ticket_world.settings.development")
 
 
 class Config:
@@ -32,3 +32,4 @@ class Config:
 app = Celery("ticket_world")
 app.config_from_object(Config(), namespace="CELERY")
 app.autodiscover_tasks()
+# DJANGO_SETTINGS_MODULE=ticket_world.settings.development

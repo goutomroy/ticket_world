@@ -36,5 +36,3 @@ urlpatterns = [
         name="reservation-ticket",
     ),
 ]
-
-print(urlpatterns)

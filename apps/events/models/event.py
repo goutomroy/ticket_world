@@ -19,9 +19,11 @@ class Event(BaseModel):
     name = models.CharField(max_length=256)
     slug = AutoSlugField(populate_from=["name"])
     description = models.TextField(blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
-    tags = models.ManyToManyField(EventTag, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_events")
+    venue = models.ForeignKey(
+        Venue, on_delete=models.CASCADE, related_name="venue_events"
+    )
+    tags = models.ManyToManyField(EventTag, blank=True, related_name="tag_events")
     status = models.SmallIntegerField(choices=Status.choices, default=Status.CREATED)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
@@ -62,11 +64,15 @@ class Event(BaseModel):
         event = self
         reserved_event_seats_of_a_event = [
             reservation_event_seat.event_seat
-            for reservation_event_seat in ReservationEventSeat.objects.filter(
+            for reservation_event_seat in ReservationEventSeat.objects.select_related(
+                "reservation__event",
+                "event_seat__event_seat_type",
+            ).filter(
                 reservation__status=Reservation.Status.RESERVED,
                 reservation__event=event,
             )
         ]
+
         return reserved_event_seats_of_a_event
 
     def is_eligible_for_reservation(self):

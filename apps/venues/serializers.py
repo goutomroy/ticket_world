@@ -6,8 +6,8 @@ from apps.venues.models import Venue
 
 
 class LocationField(serializers.DictField):
-    def to_representation(self, value):
-        return {"x": value.x, "y": value.y}
+    def to_representation(self, location):
+        return {"x": location.x, "y": location.y}
 
     def to_internal_value(self, data):
         data = super().to_internal_value(data)

@@ -4,7 +4,7 @@ from .base import *
 
 INSTALLED_APPS += ["django_extensions"]
 
-SECRET_KEY = "s@zed1d0-lxv#^!8+*8g+n*xyiy7_ajw-rk^z8zwlm%5d@qz8("
+SECRET_KEY = "django-insecure-cs$x8+4o#wdf91@se-&^id&lmw$af+phju&i=)%@c^r+ay@q9*"
 
 DEBUG = True
 
@@ -21,36 +21,6 @@ DEFAULT_FILE_STORAGE = (
 STATIC_ROOT = BASE_DIR / "static"
 
 BROWSERLESS_API_ENDPOINT = "http://localhost:3000"
-
-# DB logging
-# LOGGING["loggers"]["django.db.backends"] = {
-#     "handlers": ["sql_handler"],
-#     "level": "DEBUG",
-#     "propagate": False,
-# }
-# LOGGING["loggers"]["django.server"] = {
-#     'handlers': ['django.server'],
-#     'level': 'INFO',
-#     'propagate': False,
-# }
-#
-# LOGGING["formatters"]["sql_formatter"] = {
-#     "()": "apps.core.sql_formatter.SqlFormatter",
-#     "format": "%(levelname)s %(message)s",
-# }
-#
-# LOGGING["handlers"]["sql_handler"] = {
-#     "level": "DEBUG",
-#     "class": "logging.FileHandler",
-#     'filename': 'general.log',
-#     "formatter": "sql_formatter",
-# }
-# LOGGING["handlers"]["django.server"] = {
-#     "level": "DEBUG",
-#     "class": "logging.FileHandler",
-#     'filename': 'general.log',
-#     "formatter": "sql_formatter",
-# }
 
 LOGGING = {
     "version": 1,
@@ -87,8 +57,7 @@ LOGGING = {
         },
         "sql_handler": {
             "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": "general.log",
+            "class": "logging.StreamHandler",
             "formatter": "sql_formatter",
         },
         "mail_admins": {

@@ -29,30 +29,24 @@ class VenueAPITestCase(APITestCase):
         self._client_general.force_authenticate(self._user_general)
 
     def test_admin_can_create_venue(self):
-        data = {
-            "name": "Central Hall",
-            "address": "Gulshan-2, Dhaka",
-            "location": {"x": 10.5, "y": 10.5},
-        }
-        response = self._client_admin.post(self.VENUE_LIST_PATH, data, format="json")
+
+        response = self._client_admin.post(
+            self.VENUE_LIST_PATH, self._get_default_venue_create_data(), format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_staff_can_create_venue(self):
-        data = {
-            "name": "Central Hall",
-            "address": "Gulshan-2, Dhaka",
-            "location": {"x": 10.5, "y": 10.5},
-        }
-        response = self._client_staff.post(self.VENUE_LIST_PATH, data, format="json")
+
+        response = self._client_staff.post(
+            self.VENUE_LIST_PATH, self._get_default_venue_create_data(), format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_general_user_cant_create_venue(self):
-        data = {
-            "name": "Central Hall",
-            "address": "Gulshan-2, Dhaka",
-            "location": {"x": 10.5, "y": 10.5},
-        }
-        response = self._client_general.post(self.VENUE_LIST_PATH, data, format="json")
+
+        response = self._client_general.post(
+            self.VENUE_LIST_PATH, self._get_default_venue_create_data(), format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_anyone_can_read_venue_list(self):
@@ -152,3 +146,10 @@ class VenueAPITestCase(APITestCase):
 
         response = self._client_general.delete(venue_detail_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def _get_default_venue_create_data(self):
+        return {
+            "name": "Central Hall",
+            "address": "Gulshan-2, Dhaka",
+            "location": {"x": 10.5, "y": 10.5},
+        }

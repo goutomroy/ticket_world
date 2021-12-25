@@ -7,20 +7,20 @@ from datetime import datetime
 import sqlparse
 from pygments import highlight
 from pygments.formatters.terminal256 import Terminal256Formatter
-from pygments.lexers.sql import SqlLexer
+from pygments.lexers.sql import PostgresLexer
 
 
 class SqlFormatter(logging.Formatter):
     def __init__(self, *args, **kwargs):
 
         self.highlight = kwargs.pop("highlight", True)
-        self.style = kwargs.pop("style", "emacs")
+        self.style = kwargs.pop("style", "material")
 
         self.parse = kwargs.pop("parse", True)
         self.reindent = kwargs.pop("reindent", True)
         self.keyword_case = kwargs.pop("keyword_case", "upper")
 
-        self._lexer = SqlLexer()
+        self._lexer = PostgresLexer()
         self._formatter = Terminal256Formatter(style=self.style)
         super(SqlFormatter, self).__init__(*args, **kwargs)
 

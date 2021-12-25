@@ -7,7 +7,9 @@ from apps.events.models import EventSeatType
 
 class EventSeat(BaseModel, OrderedModelBase):
 
-    event_seat_type = models.ForeignKey(EventSeatType, on_delete=models.CASCADE)
+    event_seat_type = models.ForeignKey(
+        EventSeatType, on_delete=models.CASCADE, related_name="event_seats"
+    )
     seat_number = models.PositiveIntegerField(editable=False, db_index=True)
 
     order_field_name = "seat_number"
