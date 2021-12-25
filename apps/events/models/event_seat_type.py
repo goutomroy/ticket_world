@@ -34,10 +34,6 @@ class EventSeatType(BaseModel):
         return True
 
     def has_object_write_permission(self, request):
-        if (
-            request.user.is_superuser
-            or request.user.is_staff
-            or self.event.user == request.user
-        ):
+        if self.event.user == request.user:
             return True
         return False

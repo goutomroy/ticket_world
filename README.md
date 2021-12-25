@@ -24,5 +24,3 @@ So we need to create these 3 tasks from admin panel.
 
 ## Run tests
 * python manage.py test --keepdb
-
-

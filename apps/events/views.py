@@ -91,9 +91,7 @@ class EventSeatViewSet(ModelViewSet):
         return (
             super()
             .get_queryset()
-            .select_related(
-                "event_seat_type",
-            )
+            .select_related("event_seat_type", "event_seat_type__event")
             .all()
         )
 

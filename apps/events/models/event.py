@@ -43,11 +43,7 @@ class Event(BaseModel):
         return True
 
     def has_object_write_permission(self, request):
-        if (
-            request.user.is_superuser
-            or request.user.is_staff
-            or self.user == request.user
-        ):
+        if self.user == request.user:
             return True
         return False
 

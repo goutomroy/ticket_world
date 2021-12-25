@@ -8,8 +8,8 @@ from apps.events.views import (
 )
 
 event_router = SimpleRouter(trailing_slash=False)
-event_router.register(r"events", EventViewSet)
 event_router.register(r"event_tags", EventTagViewSet)
+event_router.register(r"events", EventViewSet)
 event_router.register(r"event_seat_types", EventSeatTypeViewSet)
 event_router.register(r"event_seats", EventSeatViewSet)
 

@@ -226,15 +226,9 @@ class EventSeatTypeSerializer(serializers.ModelSerializer):
         )
 
     def validate_event(self, value):
-        if (
-            value.user != self.context["request"].user
-            or not self.context["request"].user.is_superuser
-            or not self.context["request"].user.is_staff
-        ):
+        if value.user != self.context["request"].user:
             raise serializers.ValidationError(
-                _(
-                    "Only Creator of event or admin/staff can create, update event seat type"  # noqa
-                )
+                _("Only Creator of event can create, update event seat type")
             )
         return value
 

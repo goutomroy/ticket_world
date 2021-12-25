@@ -25,6 +25,9 @@ django-celery-beat==2.2.1
 model-bakery==1.3.3
 coverage==6.2
 
+# SQL formatting in console
+Pygments==2.10.0
+
 
 # dependency and safety checker
 safety==1.10.3
