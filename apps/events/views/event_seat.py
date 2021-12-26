@@ -18,11 +18,6 @@ class EventSeatViewSet(ModelViewSet):
     filterset_fields = ("event_seat_type", "event_seat_type__event")
 
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .select_related("event_seat_type__event")
-            .all()
-        )
+        return super().get_queryset().select_related("event_seat_type__event").all()
 
     # TODO: before deleting check whether its occupied or not

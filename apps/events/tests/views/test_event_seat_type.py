@@ -85,4 +85,3 @@ class EventSeatTypeAPITestCase(APITestCase):
 
         response = self._client_admin.patch(url, {"name": "for kids"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
