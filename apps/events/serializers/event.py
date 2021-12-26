@@ -6,23 +6,8 @@ from django.utils.translation import gettext_lazy as _
 from dry_rest_permissions.generics import DRYPermissionsField
 from rest_framework import serializers
 
-from apps.events.models import Event, EventSeat, EventSeatType, EventTag
-
-
-class EventTagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventTag
-        fields = (
-            "id",
-            "name",
-            "slug",
-        )
-        read_only_fields = (
-            "id",
-            "slug",
-            "created",
-            "updated",
-        )
+from apps.events.models import Event, EventTag
+from apps.events.serializers import EventTagSerializer
 
 
 class EventTagPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
@@ -203,59 +188,3 @@ class EventSerializer(serializers.ModelSerializer):
         instance.save()
         instance.tags.add(*tags)
         return instance
-
-
-class EventSeatTypeSerializer(serializers.ModelSerializer):
-    # object_permissions = DRYPermissionsField()
-
-    class Meta:
-        model = EventSeatType
-        fields = (
-            "id",
-            "name",
-            "event",
-            "price",
-            "info",
-            # 'object_permissions',
-        )
-        read_only_fields = (
-            "id",
-            # "object_permissions",
-            "created",
-            "updated",
-        )
-
-    def validate_event(self, value):
-        if value.user != self.context["request"].user:
-            raise serializers.ValidationError(
-                _("Only Creator of event can create, update event seat type")
-            )
-        return value
-
-
-class EventSeatSerializer(serializers.ModelSerializer):
-    event_seat_type = EventSeatTypeSerializer()
-
-    class Meta:
-        model = EventSeat
-        fields = (
-            "id",
-            "event_seat_type",
-            "seat_number",
-        )
-        read_only_fields = (
-            "id",
-            "created",
-            "updated",
-        )
-
-    def validate_event_seat_type(self, value):
-        if (
-            value.event.user != self.context["request"].user
-            or not self.context["request"].user.is_superuser
-            or not self.context["request"].user.is_staff
-        ):
-            raise serializers.ValidationError(
-                _("Only Creator of event or admin/staff can create, destroy event seat")
-            )
-        return value

@@ -5,9 +5,9 @@ from apps.core.models import BaseModel
 
 
 class Profile(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     braintree_user_id = models.CharField(max_length=256, unique=True)
-    bio = models.TextField()
+    bio = models.TextField(blank=True)
 
     class Meta:
         constraints = [

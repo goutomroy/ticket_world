@@ -14,7 +14,7 @@ class ReservationEventSeat(BaseModel):
         constraints = [
             UniqueConstraint(
                 fields=["reservation", "event_seat"],
-                name="unique_reservation_event_seat",
+                name="%(app_label)s_%(class)s_unique_reservation_event_seat",
             )
         ]
 

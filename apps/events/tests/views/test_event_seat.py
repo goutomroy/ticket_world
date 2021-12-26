@@ -43,7 +43,7 @@ class EventSeatAPITestCase(APITestCase):
         )
         event_1.tags.add(*baker.make(EventTag, _quantity=3))
 
-        for event_seat_type in event_1.seat_types.all():
+        for event_seat_type in event_1.event_seat_types.all():
             for _ in range(5):
                 EventSeat.objects.create(event_seat_type=event_seat_type)
 
@@ -57,7 +57,7 @@ class EventSeatAPITestCase(APITestCase):
         )
         event_2.tags.add(*baker.make(EventTag, _quantity=3))
 
-        for event_seat_type in event_2.seat_types.all():
+        for event_seat_type in event_2.event_seat_types.all():
             for _ in range(5):
                 EventSeat.objects.create(event_seat_type=event_seat_type)
 

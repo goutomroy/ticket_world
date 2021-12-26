@@ -48,7 +48,7 @@ class EventSeatTypeAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(json.loads(response.content)), 3)
 
-    def test_general_user_cant_create_event_seat_types_for_a_event_created_by_others(
+    def test_only_creator_of_event_can_create_event_seat_types_for_a_event(
         self,
     ):
         event = Event.objects.create(
@@ -65,7 +65,7 @@ class EventSeatTypeAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_only_creator_or_admin_staff_can_update_event_seat_type(self):
+    def test_only_creator_can_update_event_seat_type(self):
         event = Event.objects.create(
             user=self._user_admin,
             status=Event.Status.RUNNING,
@@ -80,8 +80,9 @@ class EventSeatTypeAPITestCase(APITestCase):
         response = self._client_general.patch(url, {"name": "for kids"})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+        response = self._client_staff.patch(url, {"name": "for kids"})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
         response = self._client_admin.patch(url, {"name": "for kids"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self._client_staff.patch(url, {"name": "for kids"})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
