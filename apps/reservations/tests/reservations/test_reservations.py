@@ -215,25 +215,24 @@ class ReservationAPITestCase(APITestCase):
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
-        reservation_ids = []
-        for event_seat_type in event.event_seat_types.all():
-            event_seat = EventSeat.objects.create(event_seat_type=event_seat_type)
-            reservation = baker.make(
-                Reservation,
-                event=event,
-                user=self._user_three,
-                status=Reservation.Status.CREATED,
-            )
-            reservation_ids.append(str(reservation.id))
-            baker.make(
-                ReservationEventSeat,
-                reservation=reservation,
-                event_seat=event_seat,
-            )
+        event_seat = baker.make(
+            EventSeat, event_seat_type=event.event_seat_types.first()
+        )
+        reservation = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_three,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation,
+            event_seat=event_seat,
+        )
 
         response = self._client_three.delete(
             reverse(
-                "reservations:reservation-detail", kwargs={"pk": reservation_ids[0]}
+                "reservations:reservation-detail", kwargs={"pk": str(reservation.id)}
             )
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -249,25 +248,24 @@ class ReservationAPITestCase(APITestCase):
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
-        reservation_ids = []
-        for event_seat_type in event.event_seat_types.all():
-            event_seat = EventSeat.objects.create(event_seat_type=event_seat_type)
-            reservation = baker.make(
-                Reservation,
-                event=event,
-                user=self._user_three,
-                status=Reservation.Status.RESERVED,
-            )
-            reservation_ids.append(str(reservation.id))
-            baker.make(
-                ReservationEventSeat,
-                reservation=reservation,
-                event_seat=event_seat,
-            )
+        event_seat = baker.make(
+            EventSeat, event_seat_type=event.event_seat_types.first()
+        )
+        reservation = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_three,
+            status=Reservation.Status.RESERVED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation,
+            event_seat=event_seat,
+        )
 
         response = self._client_three.delete(
             reverse(
-                "reservations:reservation-detail", kwargs={"pk": reservation_ids[0]}
+                "reservations:reservation-detail", kwargs={"pk": str(reservation.id)}
             )
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -283,25 +281,25 @@ class ReservationAPITestCase(APITestCase):
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
-        reservation_ids = []
-        for event_seat_type in event.event_seat_types.all():
-            event_seat = EventSeat.objects.create(event_seat_type=event_seat_type)
-            reservation = baker.make(
-                Reservation,
-                event=event,
-                user=self._user_three,
-                status=Reservation.Status.RESERVED,
-            )
-            reservation_ids.append(str(reservation.id))
-            baker.make(
-                ReservationEventSeat,
-                reservation=reservation,
-                event_seat=event_seat,
-            )
+        event_seat = baker.make(
+            EventSeat, event_seat_type=event.event_seat_types.first()
+        )
+        reservation = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_three,
+            status=Reservation.Status.RESERVED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation,
+            event_seat=event_seat,
+        )
 
         response = self._client_three.patch(
             reverse(
-                "reservations:reservation-detail", kwargs={"pk": reservation_ids[0]}
-            ), {"user": str(self._user_two.id)}
+                "reservations:reservation-detail", kwargs={"pk": str(reservation.id)}
+            ),
+            {"user": str(self._user_two.id)},
         )
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
