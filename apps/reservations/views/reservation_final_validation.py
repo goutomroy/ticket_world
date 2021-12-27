@@ -10,7 +10,7 @@ class FinalReservationValidationView(ReservationRelatedViewMixin, APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        reservation_event_seats = self._reservation.get_event_seats()
+        reservation_event_seats = self._reservation.get_reservation_event_seats()
         data = [
             {"event_seat": str(event_seat.id)} for event_seat in reservation_event_seats
         ]

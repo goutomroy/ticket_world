@@ -55,7 +55,9 @@ class Event(BaseModel):
         event = self
         return [
             event_seat
-            for event_seat in EventSeat.objects.filter(event_seat_type__event=event)
+            for event_seat in
+            EventSeat.objects.select_related("event_seat_type__event").filter(
+                event_seat_type__event=event)
         ]
 
     def get_reserved_event_seats(self):
@@ -65,7 +67,6 @@ class Event(BaseModel):
         reserved_event_seats_of_a_event = [
             reservation_event_seat.event_seat
             for reservation_event_seat in ReservationEventSeat.objects.select_related(
-                "reservation__event",
                 "event_seat__event_seat_type",
             ).filter(
                 reservation__status=Reservation.Status.RESERVED,

@@ -38,20 +38,20 @@ class Reservation(BaseModel):
 
     def has_object_read_permission(self, request):
         if (
-            request.user.is_superuser
-            or request.user.is_staff
-            or self.user == request.user
-            or self.event.user == request.user
+                request.user.is_superuser
+                or request.user.is_staff
+                or self.user == request.user
+                or self.event.user == request.user
         ):
             return True
         return False
 
     def has_object_write_permission(self, request):
         if (
-            request.user.is_superuser
-            or request.user.is_staff
-            or self.user == request.user
-            or self.event.user == request.user
+                request.user.is_superuser
+                or request.user.is_staff
+                or self.user == request.user
+                or self.event.user == request.user
         ):
             return True
         return False
@@ -70,7 +70,7 @@ class Reservation(BaseModel):
 
         return True, _("Valid")
 
-    def get_event_seats(self) -> List[EventSeat]:
+    def get_reservation_event_seats(self) -> List[EventSeat]:
         from apps.reservations.models import ReservationEventSeat
 
         reservation = self
@@ -84,7 +84,7 @@ class Reservation(BaseModel):
 
     def get_summary(self) -> dict:
         reservation = self
-        event_seats = reservation.get_event_seats()
+        event_seats = reservation.get_reservation_event_seats()
         number_of_seats_of_a_reservation = len(event_seats)
         seat_numbers_of_a_reservation = [
             event_seat.seat_number for event_seat in event_seats

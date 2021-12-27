@@ -37,7 +37,7 @@ class SqlFormatter(logging.Formatter):
         if self.highlight:
             msg = highlight(msg, self._lexer, self._formatter)
 
-        return f"[{datetime.now().strftime('%Y:%m:%d %H:%M')}] Duration : {record.duration:.3f} \n{msg}"  # noqa
+        return f"Duration : {record.duration:.3f} \n{msg}"  # noqa
 
 
 class LogDb:

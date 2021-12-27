@@ -83,7 +83,7 @@ class ReservationViewSet(ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        event_seats = reservation.get_event_seats()
+        event_seats = reservation.get_reservation_event_seats()
         number_of_seats_of_a_reservation = len(event_seats)
         seat_numbers_of_a_reservation = [
             event_seat.seat_number for event_seat in event_seats
