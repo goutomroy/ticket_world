@@ -17,6 +17,7 @@ reservation_router.register(r"reservations", ReservationViewSet)
 reservation_router.register(r"reservation_event_seats", ReservationEventSeatViewSet)
 
 urlpatterns = [
+    *reservation_router.urls,
     # path(
     #     f"events/<uuid:event_id>/", include(reservation_router.urls,)
     # ),

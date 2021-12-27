@@ -63,21 +63,9 @@ class Reservation(BaseModel):
 
         return True, _("Valid")
 
-    def get_reservation_event_seats(self) -> List[EventSeat]:
-        from apps.reservations.models import ReservationEventSeat
-
-        reservation = self
-
-        return [
-            each.event_seat
-            for each in ReservationEventSeat.objects.select_related(
-                "event_seat"
-            ).filter(reservation=reservation)
-        ]
-
     def get_summary(self) -> dict:
         reservation = self
-        event_seats = reservation.get_reservation_event_seats()
+        event_seats = reservation.event_seats.values("event_seat")
         number_of_seats_of_a_reservation = len(event_seats)
         seat_numbers_of_a_reservation = [
             event_seat.seat_number for event_seat in event_seats

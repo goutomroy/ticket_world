@@ -7,8 +7,12 @@ from apps.reservations.models import Reservation
 
 
 class ReservationEventSeat(BaseModel):
-    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
-    event_seat = models.ForeignKey(EventSeat, on_delete=models.CASCADE)
+    reservation = models.ForeignKey(
+        Reservation, on_delete=models.CASCADE, related_name="event_seats"
+    )
+    event_seat = models.ForeignKey(
+        EventSeat, on_delete=models.CASCADE, related_name="reservations"
+    )
 
     class Meta:
         constraints = [
