@@ -18,9 +18,6 @@ reservation_router.register(r"reservation_event_seats", ReservationEventSeatView
 
 urlpatterns = [
     *reservation_router.urls,
-    # path(
-    #     f"events/<uuid:event_id>/", include(reservation_router.urls,)
-    # ),
     path(
         f"reservations/<uuid:{settings.RESERVATION_ID_URL_KEY}>/final_validation",
         FinalReservationValidationView.as_view(),
