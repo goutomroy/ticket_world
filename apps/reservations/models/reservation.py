@@ -25,6 +25,9 @@ class Reservation(BaseModel):
     payment_id = models.CharField(max_length=256, null=True, blank=True)
     ticket_number = models.UUIDField(editable=False, default=uuid.uuid4, unique=True)
 
+    class Meta:
+        default_related_name = "reservations"
+
     def __str__(self):
         return f"{self.event.name} | {self.user.username}"
 
@@ -37,22 +40,12 @@ class Reservation(BaseModel):
         return True
 
     def has_object_read_permission(self, request):
-        if (
-                request.user.is_superuser
-                or request.user.is_staff
-                or self.user == request.user
-                or self.event.user == request.user
-        ):
+        if self.user == request.user or self.event.user == request.user:
             return True
         return False
 
     def has_object_write_permission(self, request):
-        if (
-                request.user.is_superuser
-                or request.user.is_staff
-                or self.user == request.user
-                or self.event.user == request.user
-        ):
+        if self.user == request.user or self.event.user == request.user:
             return True
         return False
 

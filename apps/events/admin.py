@@ -10,7 +10,7 @@ class EventTagAdmin(admin.ModelAdmin):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "venue", "name", "status"]
+    list_display = ["id", "user", "venue", "name", "status", "start_date", "end_date"]
     readonly_fields = ["id"]
 
 
@@ -23,4 +23,5 @@ class EventSeatTypeAdmin(admin.ModelAdmin):
 @admin.register(EventSeat)
 class EventSeatAdmin(admin.ModelAdmin):
     list_display = ("event_seat_type", "seat_number")
-    ordering = ("event_seat_type", "seat_number")
+    ordering = ("seat_number", "event_seat_type")
+    list_filter = ("event_seat_type__event", "seat_number")

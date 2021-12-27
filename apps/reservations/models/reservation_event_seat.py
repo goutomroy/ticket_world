@@ -31,9 +31,7 @@ class ReservationEventSeat(BaseModel):
 
     def has_object_read_permission(self, request):
         if (
-            request.user.is_superuser
-            or request.user.is_staff
-            or self.reservation.user == request.user
+            self.reservation.user == request.user
             or self.reservation.event.user == request.user
         ):
             return True
@@ -41,9 +39,7 @@ class ReservationEventSeat(BaseModel):
 
     def has_object_write_permission(self, request):
         if (
-            request.user.is_superuser
-            or request.user.is_staff
-            or self.reservation.user == request.user
+            self.reservation.user == request.user
             or self.reservation.event.user == request.user
         ):
             return True
