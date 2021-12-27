@@ -27,7 +27,6 @@ So we need to create these 3 tasks from admin panel.
 
 ## TODO
 * write more tests
-* Before deleting an event seat check whether its occupied or not
 * Implement avoid one - we can only buy tickets in a quantity that will not leave only 1 ticket
 * Integrate `flower` for celery task monitoring.
 

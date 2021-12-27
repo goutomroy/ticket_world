@@ -1,6 +1,5 @@
 import datetime
 import uuid
-from typing import List
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -8,7 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import BaseModel
-from apps.events.models import Event, EventSeat
+from apps.events.models import Event
 
 
 class Reservation(BaseModel):
