@@ -19,7 +19,7 @@ class EventSeat(BaseModel, OrderedModelBase):
         ordering = ("seat_number",)
 
     def __str__(self):
-        return f"{self.event_seat_type} | {self.seat_number}"
+        return f"{self.event_seat_type} | {str(self.seat_number)}"
 
     @staticmethod
     def has_read_permission(request):

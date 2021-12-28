@@ -1,4 +1,5 @@
 import json
+import uuid
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -110,7 +111,10 @@ class ReservationAPITestCase(APITestCase):
         for event_seat_type in event.event_seat_types.all():
             event_seat = EventSeat.objects.create(event_seat_type=event_seat_type)
             reservation = baker.make(
-                Reservation, event=event, status=Reservation.Status.RESERVED
+                Reservation,
+                event=event,
+                status=Reservation.Status.RESERVED,
+                user=self._user_three,
             )
             reservation_ids.append(str(reservation.id))
             baker.make(
@@ -135,9 +139,7 @@ class ReservationAPITestCase(APITestCase):
                 Reservation,
                 event=event_1,
                 status=Reservation.Status.RESERVED,
-                user=self._user_one,
             )
-            reservation_ids.append(str(reservation.id))
             baker.make(
                 ReservationEventSeat,
                 reservation=reservation,
@@ -303,3 +305,58 @@ class ReservationAPITestCase(APITestCase):
             {"user": str(self._user_two.id)},
         )
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_final_reservation_validation_successful(self):
+        event = Event.objects.create(
+            name="Happy New Year",
+            user=self._user_one,
+            status=Event.Status.CREATED,
+            venue=baker.make(Venue),
+            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
+            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+        )
+        event.tags.add(*baker.make(EventTag, _quantity=3))
+
+        event_seat = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+        event_seat_1 = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+
+        reservation_user_one = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_one,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_one,
+            event_seat=event_seat,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_one,
+            event_seat=event_seat_1,
+        )
+
+        reservation_user_two = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_two,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_two,
+            event_seat=event_seat,
+        )
+
+        response = self._client_one.get(
+            reverse(
+                "reservations:reservation-final-validation",
+                kwargs={"reservation_id": str(reservation_user_one.id)},
+            ),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
