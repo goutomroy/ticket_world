@@ -360,3 +360,98 @@ class ReservationAPITestCase(APITestCase):
             ),
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_final_reservation_validation_fails_when_number_of_seats_are_odd(self):
+        event = Event.objects.create(
+            name="Happy New Year",
+            user=self._user_one,
+            status=Event.Status.CREATED,
+            venue=baker.make(Venue),
+            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
+            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+        )
+        event.tags.add(*baker.make(EventTag, _quantity=3))
+
+        event_seat = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+
+        reservation_user_one = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_one,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_one,
+            event_seat=event_seat,
+        )
+
+        reservation_user_two = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_two,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_two,
+            event_seat=event_seat,
+        )
+
+        response = self._client_one.get(
+            reverse(
+                "reservations:reservation-final-validation",
+                kwargs={"reservation_id": str(reservation_user_one.id)},
+            ),
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_final_reservation_validation_fails_when_all_seats_are_nit_around_each_other(  # noqa
+        self,
+    ):
+        event = Event.objects.create(
+            name="Happy New Year",
+            user=self._user_one,
+            status=Event.Status.CREATED,
+            venue=baker.make(Venue),
+            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
+            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+        )
+        event.tags.add(*baker.make(EventTag, _quantity=3))
+
+        event_seat = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+        event_seat_1 = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+        event_seat_2 = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+
+        reservation_user_one = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_one,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_one,
+            event_seat=event_seat,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_one,
+            event_seat=event_seat_2,
+        )
+
+        response = self._client_one.get(
+            reverse(
+                "reservations:reservation-final-validation",
+                kwargs={"reservation_id": str(reservation_user_one.id)},
+            ),
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
