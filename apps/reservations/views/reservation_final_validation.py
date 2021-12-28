@@ -43,13 +43,4 @@ class FinalReservationValidationView(ReservationRelatedViewMixin, APIView):
 
     def get(self, request, *args, **kwargs):
         self.validate()
-        # reservation_event_seats = self._reservation.event_seats.values("event_seat")
-        # data = [
-        #     {"event_seat": str(event_seat["event_seat"])}
-        #     for event_seat in reservation_event_seats
-        # ]
-        # serializer = FinalReservationValidationSerializer(
-        #     data=data, many=True, allow_empty=False,
-        # )
-        # serializer.is_valid(raise_exception=True)
         return Response({"detail": "Valid"})
