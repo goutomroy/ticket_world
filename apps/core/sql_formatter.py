@@ -2,7 +2,6 @@
 import logging
 import os
 import sys
-from datetime import datetime
 
 import sqlparse
 from pygments import highlight

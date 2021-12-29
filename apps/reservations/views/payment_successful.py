@@ -39,15 +39,14 @@ class ReservationPaymentSuccessfulView(ReservationRelatedViewMixin, APIView):
                 {"detail": error_message}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        #  here your are really ready to reserve selected seats
+        #  here your are really ready to reserve the selected seats
         with transaction.atomic():
-            Reservation.objects.select_for_update().filter(
-                id=reservation, status=Reservation.Status.CREATED
-            ).update(status=Reservation.Status.RESERVED, payment_id=payment_id)
+            Reservation.objects.select_for_update().filter(id=reservation.id).update(
+                status=Reservation.Status.RESERVED, payment_id=payment_id
+            )
 
             return Response(
                 ReservationSerializer(
-                    reservation.refresh_from_db(fields=["status", "payment_id"]),
-                    context=self.get_serializer_context(),
+                    reservation.refresh_from_db(fields=["status", "payment_id"])
                 ).data
             )

@@ -1,5 +1,4 @@
 import json
-import uuid
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -9,7 +8,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient, APITestCase
 
 from apps.events.models import Event, EventSeat, EventTag
-from apps.reservations.models import ReservationEventSeat, Reservation
+from apps.reservations.models import Reservation, ReservationEventSeat
 from apps.venues.models import Venue
 
 
@@ -408,7 +407,7 @@ class ReservationAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_final_reservation_validation_fails_when_all_seats_are_nit_around_each_other(  # noqa
+    def test_final_reservation_validation_fails_when_all_seats_are_not_around_each_other(  # noqa
         self,
     ):
         event = Event.objects.create(
@@ -424,9 +423,7 @@ class ReservationAPITestCase(APITestCase):
         event_seat = EventSeat.objects.create(
             event_seat_type=event.event_seat_types.first()
         )
-        event_seat_1 = EventSeat.objects.create(
-            event_seat_type=event.event_seat_types.first()
-        )
+        EventSeat.objects.create(event_seat_type=event.event_seat_types.first())
         event_seat_2 = EventSeat.objects.create(
             event_seat_type=event.event_seat_types.first()
         )
@@ -455,3 +452,59 @@ class ReservationAPITestCase(APITestCase):
             ),
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_final_reservation_payment_successful(self):
+        event = Event.objects.create(
+            name="Happy New Year",
+            user=self._user_one,
+            status=Event.Status.CREATED,
+            venue=baker.make(Venue),
+            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
+            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+        )
+        event.tags.add(*baker.make(EventTag, _quantity=3))
+
+        event_seat = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+        event_seat_1 = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+
+        reservation_user_one = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_one,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_one,
+            event_seat=event_seat,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_one,
+            event_seat=event_seat_1,
+        )
+
+        reservation_user_two = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_two,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_two,
+            event_seat=event_seat,
+        )
+
+        response = self._client_one.post(
+            reverse(
+                "reservations:reservation-payment-successful",
+                kwargs={"reservation_id": str(reservation_user_one.id)},
+            ),
+            data={"payment_id": "f2asd4fa5sd4f45fas5"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

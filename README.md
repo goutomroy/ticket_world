@@ -30,4 +30,3 @@ So we need to create these 3 tasks from admin panel.
 * Implement avoid one - we can only buy tickets in a quantity that will not leave only 1 ticket
 * Integrate `flower` for celery task monitoring.
 * Lock all rows of reservations of an event during changing a status of single reservation.
-

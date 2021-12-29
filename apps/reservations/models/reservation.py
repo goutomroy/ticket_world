@@ -54,10 +54,10 @@ class Reservation(BaseModel):
 
     def is_valid(self):
         reservation = self
-        if reservation.status == Event.Status.INVALIDATED:
+        if reservation.status == Reservation.Status.INVALIDATED:
             return False, _("Reservation is invalidated")
 
-        elif reservation.status == Event.Status.RESERVED:
+        elif reservation.status == Reservation.Status.RESERVED:
             return False, _("Reservation is reserved already")
 
         return True, _("Valid")
