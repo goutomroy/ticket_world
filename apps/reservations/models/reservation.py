@@ -55,10 +55,20 @@ class Reservation(BaseModel):
     def is_valid(self):
         reservation = self
         if reservation.status == Reservation.Status.INVALIDATED:
-            return False, _("Reservation is invalidated")
+            return False, {"status": _("Reservation is invalidated")}
 
         elif reservation.status == Reservation.Status.RESERVED:
-            return False, _("Reservation is reserved already")
+            return False, {"status": _("Reservation is reserved already")}
+
+        event_seat_ids = []
+        for reservation_event_seat in reservation.event_seats.all():
+            if reservation_event_seat.event_seat.is_reserved():
+                event_seat_ids.append(reservation_event_seat.event_seat.id)
+        if event_seat_ids:
+            return False, {
+                "reserved_seats": event_seat_ids,
+                "message": "You selected already reserved seats",
+            }
 
         return True, _("Valid")
 

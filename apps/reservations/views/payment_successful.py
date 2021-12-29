@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -26,18 +27,28 @@ class ReservationPaymentSuccessfulView(ReservationRelatedViewMixin, APIView):
         event_result, event_message = reservation.event.is_eligible_for_reservation()
         reservation_result, reservation_message = reservation.is_valid()
 
-        error_message = None
+        error_response_data = dict()
         if event_result is False:
-            error_message = event_message + " You will be refunded soon."
+            error_response_data["detail"] = event_message + _(
+                " You will be refunded soon."
+            )
 
         elif reservation_result is False:
-            error_message = reservation_message + " You will be refunded soon."
+            if "status" in reservation_message:
+                error_response_data["detail"] = reservation_message["status"] + _(
+                    " You will be refunded soon."
+                )
+            elif "reserved_seats" in reservation_message:
+                error_response_data["detail"] = reservation_message["message"] + _(
+                    " You will be refunded soon."
+                )
+                error_response_data["reserved_seats"] = reservation_message[
+                    "reserved_seats"
+                ]
 
-        if error_message:
-            make_refund.apply_async(payment_id)
-            return Response(
-                {"detail": error_message}, status=status.HTTP_400_BAD_REQUEST
-            )
+        if error_response_data:
+            make_refund.apply_async((payment_id,))
+            return Response(error_response_data, status=status.HTTP_400_BAD_REQUEST)
 
         #  here your are really ready to reserve the selected seats
         with transaction.atomic():

@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch, MagicMock
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -453,7 +454,7 @@ class ReservationAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_final_reservation_payment_successful(self):
+    def test_payment_successful(self):
         event = Event.objects.create(
             name="Happy New Year",
             user=self._user_one,
@@ -508,3 +509,63 @@ class ReservationAPITestCase(APITestCase):
             data={"payment_id": "f2asd4fa5sd4f45fas5"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @patch("apps.workers.tasks.make_refund", apply_async=MagicMock())
+    def test_make_refund(self, make_refund_mock):
+        event = Event.objects.create(
+            name="Happy New Year",
+            user=self._user_one,
+            status=Event.Status.CREATED,
+            venue=baker.make(Venue),
+            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
+            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+        )
+        event.tags.add(*baker.make(EventTag, _quantity=3))
+
+        event_seat = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+        event_seat_1 = EventSeat.objects.create(
+            event_seat_type=event.event_seat_types.first()
+        )
+
+        reservation_user_one = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_one,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_one,
+            event_seat=event_seat,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_one,
+            event_seat=event_seat_1,
+        )
+
+        reservation_user_two = baker.make(
+            Reservation,
+            event=event,
+            user=self._user_two,
+            status=Reservation.Status.CREATED,
+        )
+        baker.make(
+            ReservationEventSeat,
+            reservation=reservation_user_two,
+            event_seat=event_seat,
+        )
+        Reservation.objects.select_for_update().filter(
+            id=reservation_user_two.id
+        ).update(status=Reservation.Status.RESERVED, payment_id="payment_id")
+
+        response = self._client_one.post(
+            reverse(
+                "reservations:reservation-payment-successful",
+                kwargs={"reservation_id": str(reservation_user_one.id)},
+            ),
+            data={"payment_id": "f2asd4fa5sd4f45fas5"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
