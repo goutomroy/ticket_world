@@ -40,7 +40,6 @@ def start_reservation_invalidator():
     with transaction.atomic():
         objects = []
         reservations = Reservation.objects.filter(Q(status=Reservation.Status.CREATED))
-        # TODO: may be use annotation here
         for reservation in reservations:
             if reservation.time_elapsed_since_create() > Reservation.valid_for_seconds:
                 reservation.status = Reservation.Status.INVALIDATED
