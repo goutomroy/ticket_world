@@ -12,27 +12,17 @@ from apps.reservations.models import Reservation
 @shared_task
 def event_starter():
     with transaction.atomic():
-        events = Event.objects.filter(
+        Event.objects.select_for_update().filter(
             status=Event.Status.CREATED, start_date__gte=datetime.now(tz=pytz.UTC)
-        )
-        objects = []
-        for event in events:
-            event.status = Event.Status.RUNNING
-            objects.append(event)
-        Event.objects.bulk_update(objects, fields=["status"])
+        ).update(status=Event.Status.RUNNING)
 
 
 @shared_task
 def event_stopper():
     with transaction.atomic():
-        events = Event.objects.filter(
+        Event.objects.select_for_update().filter(
             status=Event.Status.RUNNING, end_date__gte=datetime.now(tz=pytz.UTC)
-        )
-        objects = []
-        for event in events:
-            event.status = Event.Status.COMPLETED
-            objects.append(event)
-        Event.objects.bulk_update(objects, fields=["status"])
+        ).update(status = Event.Status.COMPLETED)
 
 
 @shared_task
