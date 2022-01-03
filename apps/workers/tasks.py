@@ -12,21 +12,26 @@ from apps.reservations.models import Reservation
 @shared_task
 def event_starter():
     with transaction.atomic():
-        Event.objects.select_for_update().filter(
+        qs = Event.objects.select_for_update().filter(
             status=Event.Status.CREATED, start_date__gte=datetime.now(tz=pytz.UTC)
-        ).update(status=Event.Status.RUNNING)
+        )
+        list(qs)
+        qs.update(status=Event.Status.RUNNING)
 
 
 @shared_task
 def event_stopper():
     with transaction.atomic():
-        Event.objects.select_for_update().filter(
+        qs = Event.objects.select_for_update().filter(
             status=Event.Status.RUNNING, end_date__gte=datetime.now(tz=pytz.UTC)
-        ).update(status = Event.Status.COMPLETED)
+        )
+        list(qs)
+        qs.update(status=Event.Status.COMPLETED)
 
 
 @shared_task
 def start_reservation_invalidator():
+    # TODO : need to improved this task
     with transaction.atomic():
         objects = []
         reservations = Reservation.objects.filter(Q(status=Reservation.Status.CREATED))
