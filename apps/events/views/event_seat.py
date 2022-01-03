@@ -14,7 +14,6 @@ class EventSeatViewSet(ModelViewSet):
         IsAuthenticated,
         DRYPermissions,
     )
-    filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("event_seat_type", "event_seat_type__event")
 
     def get_queryset(self):

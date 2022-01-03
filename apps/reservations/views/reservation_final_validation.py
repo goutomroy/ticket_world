@@ -9,13 +9,13 @@ from apps.core.mixins import ReservationRelatedViewMixin
 class FinalReservationValidationView(ReservationRelatedViewMixin, APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def validate_even_number_of_seats(self, reservation_event_seats):
+    def _validate_even_number_of_seats(self, reservation_event_seats):
         if len(reservation_event_seats) % 2 != 0:
             self.custom_non_field_errors.append(
                 _("You can only buy tickets in quantity that is even")
             )
 
-    def validate_all_seats_around_each_other(self, reservation_event_seats):
+    def _validate_all_seats_around_each_other(self, reservation_event_seats):
         seat_numbers = sorted(
             [
                 reservation_event_seat.event_seat.seat_number
@@ -34,8 +34,8 @@ class FinalReservationValidationView(ReservationRelatedViewMixin, APIView):
     def validate(self):
         self.custom_non_field_errors = []
         reservation_event_seats = self._reservation.event_seats.all()
-        self.validate_even_number_of_seats(reservation_event_seats)
-        self.validate_all_seats_around_each_other(reservation_event_seats)
+        self._validate_even_number_of_seats(reservation_event_seats)
+        self._validate_all_seats_around_each_other(reservation_event_seats)
 
         # TODO:  avoid one - we can only buy tickets in a quantity that will not leave only 1 ticket # noqa
         if self.custom_non_field_errors:

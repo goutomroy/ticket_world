@@ -15,4 +15,3 @@ class VenueViewSet(ModelViewSet):
         IsAuthenticated,
         DRYPermissions,
     )
-    filter_backends = (DjangoFilterBackend,)

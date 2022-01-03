@@ -14,5 +14,4 @@ class EventTagViewSet(ModelViewSet):
         IsAuthenticated,
         DRYPermissions,
     )
-    filter_backends = (DjangoFilterBackend,)
     filterset_fields = ["name", "slug"]

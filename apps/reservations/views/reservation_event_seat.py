@@ -22,7 +22,6 @@ class ReservationEventSeatViewSet(
         IsAuthenticated,
         DRYPermissions,
     )
-    filter_backends = (DjangoFilterBackend,)
     filterset_fields = (
         "reservation",
         "reservation__event",

@@ -25,7 +25,6 @@ class ReservationViewSet(
         IsAuthenticated,
         DRYPermissions,
     )
-    filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("event", "user", "status", "created")
 
     def get_queryset(self):

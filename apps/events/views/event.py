@@ -16,7 +16,6 @@ class EventViewSet(ModelViewSet):
         IsAuthenticated,
         DRYPermissions,
     )
-    filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("user", "venue", "status", "start_date", "end_date")
 
     def get_queryset(self):
