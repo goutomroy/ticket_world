@@ -510,7 +510,7 @@ class ReservationAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @patch("apps.workers.tasks.make_refund", apply_async=MagicMock())
+    @patch("apps.workers.tasks.make_refund.apply_async")
     def test_make_refund(self, make_refund_mock):
         event = Event.objects.create(
             name="Happy New Year",
@@ -522,10 +522,10 @@ class ReservationAPITestCase(APITestCase):
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
-        event_seat = EventSeat.objects.create(
+        event_seat_1 = EventSeat.objects.create(
             event_seat_type=event.event_seat_types.first()
         )
-        event_seat_1 = EventSeat.objects.create(
+        event_seat_2 = EventSeat.objects.create(
             event_seat_type=event.event_seat_types.first()
         )
 
@@ -538,12 +538,12 @@ class ReservationAPITestCase(APITestCase):
         baker.make(
             ReservationEventSeat,
             reservation=reservation_user_one,
-            event_seat=event_seat,
+            event_seat=event_seat_1,
         )
         baker.make(
             ReservationEventSeat,
             reservation=reservation_user_one,
-            event_seat=event_seat_1,
+            event_seat=event_seat_2,
         )
 
         reservation_user_two = baker.make(
@@ -555,11 +555,11 @@ class ReservationAPITestCase(APITestCase):
         baker.make(
             ReservationEventSeat,
             reservation=reservation_user_two,
-            event_seat=event_seat,
+            event_seat=event_seat_1,
         )
-        Reservation.objects.select_for_update().filter(
-            id=reservation_user_two.id
-        ).update(status=Reservation.Status.RESERVED, payment_id="payment_id")
+        Reservation.objects.filter(id=reservation_user_two.id).update(
+            status=Reservation.Status.RESERVED, payment_id="payment_id"
+        )
 
         response = self._client_one.post(
             reverse(

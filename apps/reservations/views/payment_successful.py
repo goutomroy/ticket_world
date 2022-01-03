@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
-from rest_framework import permissions, status
+from rest_framework import permissions, status, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -15,17 +15,36 @@ class ReservationPaymentSuccessfulView(ReservationRelatedViewMixin, APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        payment_id = self._validate_and_get_payment_id()
+        self._validate_event_for_reservation(payment_id)
+
+        #  here your really ready to reserve the selected seats
+        Reservation.objects.select_related("event").select_for_update().filter(
+            id=self._reservation.id
+        ).update(status=Reservation.Status.RESERVED, payment_id=payment_id)
+
+        return Response(
+            ReservationSerializer(
+                self._reservation.refresh_from_db(fields=["status", "payment_id"])
+            ).data
+        )
+
+    def _validate_and_get_payment_id(self):
         payment_id = self.request.data.get("payment_id", None)
         if payment_id is None:
-            return Response(
-                {"payment_id": ["This field is required"]},
-                status=status.HTTP_400_BAD_REQUEST,
+            raise serializers.ValidationError(
+                {"payment_id": ["This field is required"]}
             )
+        return payment_id
 
-        reservation = self._reservation
+    def _validate_event_for_reservation(self, payment_id):
 
-        event_result, event_message = reservation.event.is_eligible_for_reservation()
-        reservation_result, reservation_message = reservation.is_valid()
+        (
+            event_result,
+            event_message,
+        ) = self._reservation.event.is_eligible_for_reservation()
+
+        reservation_result, reservation_message = self._reservation.is_valid()
 
         error_response_data = dict()
         if event_result is False:
@@ -48,16 +67,4 @@ class ReservationPaymentSuccessfulView(ReservationRelatedViewMixin, APIView):
 
         if error_response_data:
             make_refund.apply_async((payment_id,))
-            return Response(error_response_data, status=status.HTTP_400_BAD_REQUEST)
-
-        #  here your are really ready to reserve the selected seats
-        with transaction.atomic():
-            Reservation.objects.select_for_update().filter(id=reservation.id).update(
-                status=Reservation.Status.RESERVED, payment_id=payment_id
-            )
-
-            return Response(
-                ReservationSerializer(
-                    reservation.refresh_from_db(fields=["status", "payment_id"])
-                ).data
-            )
+            raise serializers.ValidationError(error_response_data)

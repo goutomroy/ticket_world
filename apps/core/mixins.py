@@ -34,7 +34,9 @@ class ReservationRelatedViewMixin:
         ):
             raise PermissionDenied
 
-        self._reservation = Reservation.objects.get(id=requested_reservation_id)
+        self._reservation = Reservation.objects.select_related("event").get(
+            id=requested_reservation_id
+        )
 
     def _get_requested_reservation_id(self, kwargs):
         return kwargs.get(settings.RESERVATION_ID_URL_KEY)
