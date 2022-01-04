@@ -1,8 +1,9 @@
 import json
+import datetime
 from unittest.mock import patch
 
+import pytz
 from django.contrib.auth.models import User
-from django.utils import timezone
 from model_bakery import baker
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -33,8 +34,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.RUNNING,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
         for event_seat_type in event.event_seat_types.all():
@@ -52,8 +53,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.COMPLETED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
         for event_seat_type in event.event_seat_types.all():
@@ -71,8 +72,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
         for event_seat_type in event.event_seat_types.all():
@@ -105,8 +106,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -132,8 +133,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_two,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event_1.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -163,8 +164,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -190,8 +191,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_two,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event_1.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -221,8 +222,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -254,8 +255,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -288,8 +289,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -323,8 +324,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -378,8 +379,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -427,8 +428,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -471,8 +472,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 
@@ -528,8 +529,8 @@ class ReservationAPITestCase(APITestCase):
             user=self._user_one,
             status=Event.Status.CREATED,
             venue=baker.make(Venue),
-            start_date=timezone.datetime(2022, 6, 1, 7, 30, 30, tzinfo=timezone.utc),
-            end_date=timezone.datetime(2022, 6, 5, 7, 30, 30, tzinfo=timezone.utc),
+            start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.utc),
+            end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.utc),
         )
         event.tags.add(*baker.make(EventTag, _quantity=3))
 

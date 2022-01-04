@@ -75,14 +75,21 @@ class Reservation(BaseModel):
         elif reservation.status == Reservation.Status.RESERVED:
             return False, {"status": _("Reservation is reserved already.")}
 
-        qs = ReservationEventSeat.objects.filter(
-            ~Q(reservation=reservation)
-            & Q(reservation__status=Reservation.Status.RESERVED),
-            event_seat__in=ReservationEventSeat.objects.filter(
-                reservation=reservation
-            ).values("event_seat"),
-        ).values("event_seat")
-        event_seat_ids = [each["event_seat"] for each in qs]
+        # find event seats in a reservation that is already reserved
+        # by other reservation
+        reservation_event_seat_ids = ReservationEventSeat.objects.filter(
+            reservation=reservation
+        ).values_list("event_seat_id", flat=True)
+
+        event_seat_ids = (
+            ReservationEventSeat.objects.select_related("reservation")
+            .filter(
+                ~Q(reservation=reservation)
+                & Q(reservation__status__gte=Reservation.Status.PAYMENT_COMPLETE)
+                & Q(event_seat__in=list(reservation_event_seat_ids)),
+            )
+            .values_list("event_seat_id", flat=True)
+        )
 
         # event_seat_ids = []
         # for reservation_event_seat in reservation.event_seats.all():

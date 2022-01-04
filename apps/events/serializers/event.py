@@ -114,16 +114,34 @@ class EventSerializer(serializers.ModelSerializer):
             )
 
     def validate_venue_start_end_date_create(self, data):
+
         if Event.objects.filter(
             Q(venue=data["venue"])
             & (
-                Q(start_date__lte=data["start_date"], end_date__gte=data["start_date"])
-                | Q(start_date__lte=data["end_date"], end_date__gte=data["end_date"])
+                Q(start_date__range=(data["start_date"], data["end_date"]))
+                | Q(end_date__range=(data["start_date"], data["end_date"]))
             )
         ).exists():
             self._object_level_validation_errors.append(
                 self._default_custom_error_message["venue_start_date_end_date"]
             )
+
+        # if Event.objects.filter(
+        #     Q(venue=data["venue"])
+        #     & (
+        #         (
+        #             Q(start_date__gte=data["start_date"])
+        #             & Q(end_date__lte=data["start_date"])
+        #         )
+        #         | (
+        #             Q(start_date__gte=data["end_date"])
+        #             & Q(end_date__lte=data["end_date"])
+        #         )
+        #     )
+        # ).exists():
+        #     self._object_level_validation_errors.append(
+        #         self._default_custom_error_message["venue_start_date_end_date"]
+        #     )
 
     def validate_venue_start_end_date_for_update_partial_update(self, data):
         if Event.objects.filter(

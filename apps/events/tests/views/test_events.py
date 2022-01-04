@@ -133,7 +133,6 @@ class EventAPITestCase(APITestCase):
             start_date=datetime.datetime(2022, 6, 1, 7, 30, 30, tzinfo=pytz.UTC),
             end_date=datetime.datetime(2022, 6, 5, 7, 30, 30, tzinfo=pytz.UTC),
         )
-
         data = {
             "name": "New Year Celebration",
             "venue": event.venue.id,

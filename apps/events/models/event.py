@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.contrib.postgres.functions import TransactionNow
 from django.db import models
+from django.db.models import Q, F
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 
@@ -30,6 +32,14 @@ class Event(BaseModel):
 
     objects = EventManager()
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=Q(start_date__lt=F("end_date"), start_date__gt=TransactionNow()),
+                name="%(app_label)s_%(class)s_start_date_is_lt_end_date_and_now",
+            )
+        ]
+
     def __str__(self):
         return self.name
 
@@ -53,12 +63,9 @@ class Event(BaseModel):
         from apps.events.models import EventSeat
 
         event = self
-        return [
-            event_seat
-            for event_seat in EventSeat.objects.select_related(
+        return EventSeat.objects.select_related(
                 "event_seat_type__event"
             ).filter(event_seat_type__event=event)
-        ]
 
     def get_reserved_event_seats(self):
         from apps.reservations.models import Reservation, ReservationEventSeat
