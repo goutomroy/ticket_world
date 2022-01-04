@@ -48,10 +48,6 @@ class Reservation(BaseModel):
             return True
         return False
 
-    @property
-    def time_elapsed_since_create(self) -> int:
-        return int((datetime.datetime.now(timezone.utc) - self.created).total_seconds())
-
     def is_valid(self):
         reservation = self
         if reservation.status == Reservation.Status.INVALIDATED:

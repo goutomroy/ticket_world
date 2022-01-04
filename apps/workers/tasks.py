@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 from celery import shared_task
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, F
+from django.utils import timezone
 
 from apps.events.models import Event
 from apps.reservations.models import Reservation
@@ -31,16 +32,12 @@ def event_stopper():
 
 @shared_task
 def start_reservation_invalidator():
-    # TODO : need to improved this task
     with transaction.atomic():
-        objects = []
-        reservations = Reservation.objects.filter(Q(status=Reservation.Status.CREATED))
-        for reservation in reservations:
-            if reservation.time_elapsed_since_create() > Reservation.valid_for_seconds:
-                reservation.status = Reservation.Status.INVALIDATED
-                objects.append(reservation)
-
-        Reservation.objects.bulk_update(objects, fields=["status"])
+        Reservation.objects.filter(
+            status=Reservation.Status.CREATED,
+            created_lte=timezone.now()
+            - timedelta(seconds=Reservation.valid_for_seconds),
+        ).update(status=Reservation.Status.INVALIDATED)
 
 
 @shared_task
