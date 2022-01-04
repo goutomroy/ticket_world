@@ -79,7 +79,10 @@ class ReservationAPITestCase(APITestCase):
             for _ in range(1):
                 event_seat = EventSeat.objects.create(event_seat_type=event_seat_type)
                 reservation = baker.make(
-                    Reservation, event=event, status=Reservation.Status.RESERVED
+                    Reservation,
+                    event=event,
+                    status=Reservation.Status.RESERVED,
+                    payment_id="payment_id",
                 )
                 baker.make(
                     ReservationEventSeat,
@@ -114,6 +117,7 @@ class ReservationAPITestCase(APITestCase):
                 Reservation,
                 event=event,
                 status=Reservation.Status.RESERVED,
+                payment_id="payment_id",
                 user=self._user_three,
             )
             reservation_ids.append(str(reservation.id))
@@ -139,6 +143,7 @@ class ReservationAPITestCase(APITestCase):
                 Reservation,
                 event=event_1,
                 status=Reservation.Status.RESERVED,
+                payment_id="payment_id",
             )
             baker.make(
                 ReservationEventSeat,
@@ -171,6 +176,7 @@ class ReservationAPITestCase(APITestCase):
                 event=event,
                 user=self._user_three,
                 status=Reservation.Status.RESERVED,
+                payment_id="payment_id",
             )
             reservation_ids.append(str(reservation.id))
             baker.make(
@@ -192,7 +198,10 @@ class ReservationAPITestCase(APITestCase):
         for event_seat_type in event_1.event_seat_types.all():
             event_seat = EventSeat.objects.create(event_seat_type=event_seat_type)
             reservation = baker.make(
-                Reservation, event=event_1, status=Reservation.Status.RESERVED
+                Reservation,
+                event=event_1,
+                status=Reservation.Status.RESERVED,
+                payment_id="payment_id",
             )
             baker.make(
                 ReservationEventSeat,
@@ -258,6 +267,7 @@ class ReservationAPITestCase(APITestCase):
             event=event,
             user=self._user_three,
             status=Reservation.Status.RESERVED,
+            payment_id="payment_id",
         )
         baker.make(
             ReservationEventSeat,
@@ -291,6 +301,7 @@ class ReservationAPITestCase(APITestCase):
             event=event,
             user=self._user_three,
             status=Reservation.Status.RESERVED,
+            payment_id="payment_id",
         )
         baker.make(
             ReservationEventSeat,
