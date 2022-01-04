@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.postgres.functions import TransactionNow
 from django.db import models
-from django.db.models import Q, F
+from django.db.models import F, Q
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 
@@ -63,9 +63,9 @@ class Event(BaseModel):
         from apps.events.models import EventSeat
 
         event = self
-        return EventSeat.objects.select_related(
-                "event_seat_type__event"
-            ).filter(event_seat_type__event=event)
+        return EventSeat.objects.select_related("event_seat_type__event").filter(
+            event_seat_type__event=event
+        )
 
     def get_reserved_event_seats(self):
         from apps.reservations.models import Reservation, ReservationEventSeat
