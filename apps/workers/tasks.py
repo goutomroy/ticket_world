@@ -31,7 +31,7 @@ def event_stopper():
 @shared_task
 def start_reservation_invalidator():
     with transaction.atomic():
-        qs = Reservation.objects.filter(
+        qs = Reservation.objects.select_for_update().filter(
             status=Reservation.Status.CREATED,
             created_lte=timezone.now()
             - timedelta(seconds=Reservation.valid_for_seconds),
