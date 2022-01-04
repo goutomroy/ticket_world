@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q, UniqueConstraint
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import BaseModel
@@ -13,7 +14,9 @@ class Reservation(BaseModel):
         # reservation status will be changed by background code, not by any http actions
         CREATED = 1, "Created"
         INVALIDATED = 2, "Invalidated"
-        RESERVED = 4, "Reserved"
+        PAYMENT_STARTED = 3, "Payment Started"
+        PAYMENT_COMPLETE = 4, "Payment Complete"
+        RESERVED = 5, "Reserved"
 
     valid_for_seconds = 15 * 60
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -24,6 +27,21 @@ class Reservation(BaseModel):
 
     class Meta:
         default_related_name = "reservations"
+        constraints = [
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_completed_payment_must_have_payment_id",
+                check=(
+                    Q(
+                        status__in=[1, 2, 3],
+                        payment_id__isnull=True,
+                    )
+                    | Q(
+                        status__in=[4, 5],
+                        payment_id__isnull=False,
+                    )
+                ),
+            )
+        ]
 
     def __str__(self):
         return f"{self.event.name} | {self.user.username}"
@@ -47,6 +65,9 @@ class Reservation(BaseModel):
         return False
 
     def is_valid(self):
+
+        from apps.reservations.models import ReservationEventSeat
+
         reservation = self
         if reservation.status == Reservation.Status.INVALIDATED:
             return False, {"status": _("Reservation is invalidated.")}
@@ -54,14 +75,24 @@ class Reservation(BaseModel):
         elif reservation.status == Reservation.Status.RESERVED:
             return False, {"status": _("Reservation is reserved already.")}
 
-        event_seat_ids = []
-        for reservation_event_seat in reservation.event_seats.all():
-            if reservation_event_seat.event_seat.is_reserved():
-                event_seat_ids.append(reservation_event_seat.event_seat.id)
+        qs = ReservationEventSeat.objects.filter(
+            ~Q(reservation=reservation)
+            & Q(reservation__status=Reservation.Status.RESERVED),
+            event_seat__in=ReservationEventSeat.objects.filter(
+                reservation=reservation
+            ).values("event_seat"),
+        ).values("event_seat")
+        event_seat_ids = [each["event_seat"] for each in qs]
+
+        # event_seat_ids = []
+        # for reservation_event_seat in reservation.event_seats.all():
+        #     if reservation_event_seat.event_seat.is_reserved():
+        #         event_seat_ids.append(reservation_event_seat.event_seat.id)
+
         if event_seat_ids:
             return False, {
                 "reserved_seats": event_seat_ids,
-                "message": "You selected already reserved seats.",
+                "message": _("You selected already reserved seats."),
             }
 
         return True, _("Valid")

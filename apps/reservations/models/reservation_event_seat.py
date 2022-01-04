@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import UniqueConstraint
 
 from apps.core.models import BaseModel
 from apps.events.models import EventSeat
@@ -13,14 +12,6 @@ class ReservationEventSeat(BaseModel):
     event_seat = models.ForeignKey(
         EventSeat, on_delete=models.CASCADE, related_name="reservations"
     )
-
-    class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=["reservation", "event_seat"],
-                name="%(app_label)s_%(class)s_unique_reservation_event_seat",
-            )
-        ]
 
     def __str__(self):
         return f"{self.reservation} | {self.event_seat}"
